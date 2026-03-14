@@ -24,8 +24,11 @@ jobs:
         with:
           ruby-version: '3.3'
           bundler: 'latest'
-          bundler-cache: true
           working-directory: ios
+
+      - name: Install Fastlane
+        working-directory: ios
+        run: bundle install
 
       - name: Write App Store Connect API Key
         env:
