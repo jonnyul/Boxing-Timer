@@ -43,16 +43,15 @@ jobs:
           echo "Patched $TOKEN_RB"
 
           # Fix "No data" crash when fetching review detail on first submission
-          METADATA_RB="$FASTLANE_DIR/deliver/lib/deliver/upload_metadata.rb"
-          ruby -i -e "
-            content = STDIN.read
-            content.gsub!(
-              /def review_attachment_file\n(\s+)(app_store_version\.fetch_app_store_review_detail)/,
-              \"def review_attachment_file\n\\\\1\\\\2\n\\\\1rescue\n\\\\1nil\"
-            )
-            print content
-          " "$METADATA_RB"
-          echo "Patched $METADATA_RB"
+          # Patch the model.rb raise "No data" to return nil instead
+          MODEL_RB="$FASTLANE_DIR/spaceship/lib/spaceship/connect_api/model.rb"
+          ruby -e "
+            path = '$MODEL_RB'
+            content = File.read(path)
+            content.gsub!('raise \"No data\"', 'return nil')
+            File.write(path, content)
+          "
+          echo "Patched $MODEL_RB"
 
       - name: Write App Store Connect API Key
         env:
