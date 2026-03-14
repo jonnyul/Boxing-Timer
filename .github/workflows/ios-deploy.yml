@@ -120,9 +120,9 @@ jobs:
             resp
           end
 
-          # Set contentRightsDeclaration via raw PATCH
-          asc("PATCH", "appStoreVersions/#{vid}", {
-            data: { type: "appStoreVersions", id: vid,
+          # Set contentRightsDeclaration on the app (not the version)
+          asc("PATCH", "apps/#{app.id}", {
+            data: { type: "apps", id: app.id,
                     attributes: { contentRightsDeclaration: "DOES_NOT_USE_THIRD_PARTY_CONTENT" } }
           }, bearer)
 
