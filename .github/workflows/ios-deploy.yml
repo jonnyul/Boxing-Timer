@@ -32,13 +32,27 @@ jobs:
         working-directory: ios
         run: bundle install
 
-      - name: Patch Fastlane OpenSSL compatibility
+      - name: Patch Fastlane compatibility
         working-directory: ios
         run: |
           FASTLANE_DIR=$(bundle exec ruby -e "puts Gem::Specification.find_by_name('fastlane').gem_dir")
+
+          # Fix OpenSSL 3.x "invalid curve name" bug
           TOKEN_RB="$FASTLANE_DIR/spaceship/lib/spaceship/connect_api/token.rb"
           sed -i '' 's/OpenSSL::PKey::EC\.new/OpenSSL::PKey.read/g' "$TOKEN_RB"
           echo "Patched $TOKEN_RB"
+
+          # Fix "No data" crash when fetching review detail on first submission
+          METADATA_RB="$FASTLANE_DIR/deliver/lib/deliver/upload_metadata.rb"
+          ruby -i -e "
+            content = STDIN.read
+            content.gsub!(
+              /def review_attachment_file\n(\s+)(app_store_version\.fetch_app_store_review_detail)/,
+              \"def review_attachment_file\n\\\\1\\\\2\n\\\\1rescue\n\\\\1nil\"
+            )
+            print content
+          " "$METADATA_RB"
+          echo "Patched $METADATA_RB"
 
       - name: Write App Store Connect API Key
         env:
