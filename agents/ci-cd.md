@@ -60,13 +60,23 @@ To set up for the first time:
 4. Add them as GitHub secrets (see above)
 5. Push to `prod` branch to trigger production deployment
 
-## Blocking Issues (as of 2026-03-13)
+## Screenshots
 
-### App Store Connect API Key
-The issuer ID in `keys.md` (`220f0894-51a2-449c-ad61-9715441b4a11`) appears to have 11 characters in the last UUID segment instead of the standard 12. This causes API 401 errors. **Verify the correct issuer ID at:** App Store Connect → Users and Access → Keys.
+9 screenshots captured (2026-03-14) and committed to `ios/fastlane/screenshots/en-US/`:
+- iPhone 17 Pro Max, iPhone 17 Pro, iPhone 16e
+- Screens: 01_Home, 02_Presets, 03_Stats
+
+**Known issue:** Fastlane's `snapshot` action fails on iOS 26.x simulators due to version mismatch (simctl shows `26.3`, xcodebuild reports `26.3.1`). The `screenshots` lane bypasses this by using `xcrun simctl io screenshot` triggered by NSLog parsing, with simulator UDIDs hard-coded in the Fastfile.
+
+If simulators are recreated, update the UDIDs in the `screenshots` lane of `Fastfile`.
+
+## Blocking Issues (as of 2026-03-14)
+
+### App Store Connect API Key — RESOLVED
+Issuer ID corrected to `220f0894-51a2-449c-ad61-9715441b4a11` (was missing trailing `1`). API key ZV4778F669 is Active/Admin.
 
 ### Code Signing
-No Apple Distribution certificate exists in the local keychain (only Apple Development). For App Store export, a distribution cert + App Store provisioning profile for `john.Boxing-Timer` is required. Once the API key is fixed, run `fastlane codesign` to create them automatically.
+No Apple Distribution certificate exists in the local keychain (only Apple Development). For App Store export, a distribution cert + App Store provisioning profile for `john.Boxing-Timer` is required. Run `fastlane codesign` (once API key is validated end-to-end) to create them automatically.
 
-### Vercel Login
-Vercel CLI requires interactive browser login (`vercel login`). Run this once locally, then extract the token for GitHub secrets.
+### Vercel Login — RESOLVED
+`vercel login` and `vercel link` completed. Org ID and Project ID set as GitHub secrets.
