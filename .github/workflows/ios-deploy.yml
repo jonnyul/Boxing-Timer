@@ -43,7 +43,7 @@ jobs:
           echo "Patched $TOKEN_RB"
 
           # Fix "No data" crash when fetching review detail on first submission
-          # Patch the model.rb raise "No data" to return nil instead
+          # Step 1: patch model.rb so fetch_app_store_review_detail returns nil instead of raising
           MODEL_RB="$FASTLANE_DIR/spaceship/lib/spaceship/connect_api/model.rb"
           ruby -e "
             path = '$MODEL_RB'
@@ -52,6 +52,19 @@ jobs:
             File.write(path, content)
           "
           echo "Patched $MODEL_RB"
+
+          # Step 2: patch upload_metadata.rb to use safe navigator so nil review detail doesn't crash
+          METADATA_RB="$FASTLANE_DIR/deliver/lib/deliver/upload_metadata.rb"
+          ruby -e "
+            path = '$METADATA_RB'
+            content = File.read(path)
+            content.gsub!(
+              'app_store_review_detail.app_store_review_attachments',
+              'app_store_review_detail&.app_store_review_attachments'
+            )
+            File.write(path, content)
+          "
+          echo "Patched $METADATA_RB"
 
       - name: Write App Store Connect API Key
         env:
