@@ -1,3 +1,5 @@
+require 'base64'
+
 default_platform(:ios)
 
 KEY_ID       = "3349GWYVGR"
@@ -6,13 +8,14 @@ TEAM_ID      = "3LN6SHFTXK"
 BUNDLE_ID    = "john.Boxing-Timer"
 
 # App Store Connect API Key
-# Uses ASC_KEY_FILEPATH env var in CI, falls back to local path
+# Passes key as base64 content to avoid OpenSSL 3.x "invalid curve name" bug
 def api_key
   key_path = ENV["ASC_KEY_FILEPATH"] || File.expand_path("~/Desktop/appstuff/keys/apple-keys/AuthKey_#{KEY_ID}.p8")
   app_store_connect_api_key(
     key_id: KEY_ID,
     issuer_id: ISSUER_ID,
-    key_filepath: key_path,
+    key_content: Base64.strict_encode64(File.read(key_path)),
+    is_key_content_base64: true,
     duration: 1200,
     in_house: false
   )
