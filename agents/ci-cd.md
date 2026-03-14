@@ -63,7 +63,7 @@ To set up for the first time:
 ## Blocking Issues (as of 2026-03-13)
 
 ### App Store Connect API Key
-The issuer ID in `keys.md` (`220f0894-51a2-449c-ad61-9715441b4a1`) appears to have 11 characters in the last UUID segment instead of the standard 12. This causes API 401 errors. **Verify the correct issuer ID at:** App Store Connect → Users and Access → Keys.
+The issuer ID in `keys.md` (`220f0894-51a2-449c-ad61-9715441b4a11`) appears to have 11 characters in the last UUID segment instead of the standard 12. This causes API 401 errors. **Verify the correct issuer ID at:** App Store Connect → Users and Access → Keys.
 
 ### Code Signing
 No Apple Distribution certificate exists in the local keychain (only Apple Development). For App Store export, a distribution cert + App Store provisioning profile for `john.Boxing-Timer` is required. Once the API key is fixed, run `fastlane codesign` to create them automatically.

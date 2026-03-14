@@ -7,7 +7,7 @@ def api_key
   key_path = ENV["ASC_KEY_FILEPATH"] || File.expand_path("~/Desktop/appstuff/keys/apple-keys/AuthKey_ZV4778F669.p8")
   app_store_connect_api_key(
     key_id: "ZV4778F669",
-    issuer_id: "220f0894-51a2-449c-ad61-9715441b4a1",
+    issuer_id: "220f0894-51a2-449c-ad61-9715441b4a11",
     key_filepath: key_path,
     duration: 1200,
     in_house: false
