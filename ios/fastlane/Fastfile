@@ -42,8 +42,7 @@ platform :ios do
       output_directory: "./build",
       output_name: "BoxingTimer",
       clean: true,
-      xcargs: xcode_auth_xcargs,
-      export_xcargs: xcode_auth_xcargs
+      xcargs: xcode_auth_xcargs
     )
 
     upload_to_testflight(
@@ -67,8 +66,7 @@ platform :ios do
       output_directory: "./build",
       output_name: "BoxingTimer",
       clean: true,
-      xcargs: xcode_auth_xcargs,
-      export_xcargs: xcode_auth_xcargs
+      xcargs: xcode_auth_xcargs
     )
 
     upload_to_app_store(
