@@ -1,11 +1,13 @@
 name: iOS — Deploy to App Store
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
       - 'ios/**'
+      - '.github/workflows/ios-deploy.yml'
 
 jobs:
   deploy:
