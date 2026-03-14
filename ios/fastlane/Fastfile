@@ -164,4 +164,21 @@ platform :ios do
     UI.success("Done! #{count} screenshots saved to fastlane/screenshots/en-US/")
   end
 
+  # ── codesign: create/download distribution cert + provisioning profile ──────
+  desc "Create Apple Distribution certificate and App Store provisioning profile"
+  lane :codesign do
+    key = api_key
+
+    get_certificates(
+      api_key: key,
+      output_path: "./certs"
+    )
+
+    get_provisioning_profile(
+      api_key: key,
+      app_identifier: BUNDLE_ID,
+      output_path: "./certs"
+    )
+  end
+
 end
