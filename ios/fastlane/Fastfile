@@ -103,19 +103,65 @@ platform :ios do
   end
 
   # ── screenshots: capture App Store screenshots ─────────────────────────────
+  # Uses simctl io screenshot triggered by NSLog "snapshot: <name>" parsing,
+  # bypassing fastlane's broken OS version matching for iOS 26.x simulators.
   desc "Capture App Store screenshots via snapshot"
   lane :screenshots do
-    snapshot(
-      scheme: "Boxing Timer",
-      devices: [
-        "iPhone 16 Pro Max",
-        "iPhone 16 Pro",
-        "iPhone SE (3rd generation)"
-      ],
-      languages: ["en-US"],
-      output_directory: "./fastlane/screenshots",
-      clear_previous_screenshots: true
-    )
+    # Device UDIDs — update if simulators are recreated
+    devices = {
+      "iPhone 17 Pro Max" => "F2310914-3385-4C5A-8C0E-F990FFDAE113",
+      "iPhone 17 Pro"     => "58539C49-E5C1-4566-9215-1CE33ACEB315",
+      "iPhone 16e"        => "50F52ACB-529F-4D1F-A749-5D50790F72B4"
+    }
+
+    # Fastfile lives in ios/fastlane/, so ".." = ios/ directory
+    ios_dir    = File.expand_path("..")
+    output_dir = "#{ios_dir}/fastlane/screenshots/en-US"
+    FileUtils.rm_rf(output_dir)
+    FileUtils.mkdir_p(output_dir)
+
+    project_dir = ios_dir
+    derived    = "/tmp/snapshot_direct_#{Time.now.to_i}"
+
+    devices.each do |device_name, udid|
+      UI.message("Capturing screenshots on #{device_name} (#{udid})...")
+
+      # Script that runs xcodebuild and captures screenshots from simctl on each "snapshot: <name>" line
+      capture_script = <<~BASH
+        set -e
+        # Boot simulator if needed
+        xcrun simctl boot #{udid} 2>/dev/null || true
+
+        # Override status bar for clean screenshots
+        xcrun simctl status_bar #{udid} override \
+          --time 09:41 --dataNetwork wifi --wifiMode active --wifiBars 3 \
+          --cellularMode active --operatorName '' --cellularBars 4 \
+          --batteryState charged --batteryLevel 100 2>/dev/null || true
+
+        # Run tests and watch for snapshot: <name> log lines
+        xcodebuild \
+          -scheme 'Boxing TimerUITests' \
+          -project '#{project_dir}/Boxing Timer.xcodeproj' \
+          -derivedDataPath '#{derived}' \
+          -destination 'platform=iOS Simulator,id=#{udid}' \
+          FASTLANE_SNAPSHOT=YES FASTLANE_LANGUAGE=en-US \
+          build test 2>&1 | while IFS= read -r line; do
+            echo "$line"
+            if [[ "$line" =~ "snapshot: "(.+)$ ]]; then
+              name="${BASH_REMATCH[1]}"
+              # Trim whitespace and carriage returns
+              name=$(echo "$name" | tr -d '\\r' | xargs)
+              outfile="#{output_dir}/#{device_name}-${name}.png"
+              xcrun simctl io #{udid} screenshot "$outfile" && echo "Saved: $outfile" || true
+            fi
+          done
+      BASH
+
+      sh(capture_script)
+    end
+
+    count = Dir.glob("#{output_dir}/*.png").count
+    UI.success("Done! #{count} screenshots saved to fastlane/screenshots/en-US/")
   end
 
 end

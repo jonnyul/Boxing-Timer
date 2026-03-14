@@ -6,19 +6,49 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6E80314D97B9CBF08C64D8F1 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23E440986BD11FF4DFAEB38 /* SnapshotHelper.swift */; };
+		A3F2312BA79E99FDCAE04E2A /* Boxing_TimerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E3EA86E6E4AF624E686C046 /* Boxing_TimerUITests.swift */; };
+		D7B35D5BC3475531FAAA28D3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D7D8551BAB9758F63F23360 /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F37EF0834F3D9B5BE5E63139 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E620A212F6371AE001417A8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8E620A282F6371AE001417A8;
+			remoteInfo = "Boxing Timer";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		4E3EA86E6E4AF624E686C046 /* Boxing_TimerUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Boxing_TimerUITests.swift; sourceTree = "<group>"; };
+		7D7D8551BAB9758F63F23360 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		8516288F60C4ED001DA90604 /* Boxing TimerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Boxing TimerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E620A292F6371AE001417A8 /* Boxing Timer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Boxing Timer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B23E440986BD11FF4DFAEB38 /* SnapshotHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SnapshotHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8E620A2B2F6371AE001417A8 /* Boxing Timer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = "Boxing Timer";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		5DE681FE2AD528EBD74E7418 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7B35D5BC3475531FAAA28D3 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8E620A262F6371AE001417A8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -29,11 +59,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2492933E414FC09ABDF32A8B /* Boxing TimerUITests */ = {
+			isa = PBXGroup;
+			children = (
+				4E3EA86E6E4AF624E686C046 /* Boxing_TimerUITests.swift */,
+				B23E440986BD11FF4DFAEB38 /* SnapshotHelper.swift */,
+			);
+			name = "Boxing TimerUITests";
+			path = "Boxing TimerUITests";
+			sourceTree = "<group>";
+		};
 		8E620A202F6371AE001417A8 = {
 			isa = PBXGroup;
 			children = (
 				8E620A2B2F6371AE001417A8 /* Boxing Timer */,
 				8E620A2A2F6371AE001417A8 /* Products */,
+				A935E11FAB8E919CC0A379F2 /* Frameworks */,
+				2492933E414FC09ABDF32A8B /* Boxing TimerUITests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -41,13 +83,48 @@
 			isa = PBXGroup;
 			children = (
 				8E620A292F6371AE001417A8 /* Boxing Timer.app */,
+				8516288F60C4ED001DA90604 /* Boxing TimerUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		90C34B8787AE916309FAB9D9 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				7D7D8551BAB9758F63F23360 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		A935E11FAB8E919CC0A379F2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				90C34B8787AE916309FAB9D9 /* iOS */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0FE4DC3A8C6F624CDACFAA19 /* Boxing TimerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5FFE7E46A6184E834CD9FE9E /* Build configuration list for PBXNativeTarget "Boxing TimerUITests" */;
+			buildPhases = (
+				BD78F577699DA42C92777D06 /* Sources */,
+				5DE681FE2AD528EBD74E7418 /* Frameworks */,
+				6407CDA1D48FC0392A32F81A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BAD4D8F28A09E76CA2A454EA /* PBXTargetDependency */,
+			);
+			name = "Boxing TimerUITests";
+			productName = "Boxing TimerUITests";
+			productReference = 8516288F60C4ED001DA90604 /* Boxing TimerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		8E620A282F6371AE001417A8 /* Boxing Timer */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8E620A362F6371AF001417A8 /* Build configuration list for PBXNativeTarget "Boxing Timer" */;
@@ -64,8 +141,6 @@
 				8E620A2B2F6371AE001417A8 /* Boxing Timer */,
 			);
 			name = "Boxing Timer";
-			packageProductDependencies = (
-			);
 			productName = "Boxing Timer";
 			productReference = 8E620A292F6371AE001417A8 /* Boxing Timer.app */;
 			productType = "com.apple.product-type.application";
@@ -100,11 +175,19 @@
 			projectRoot = "";
 			targets = (
 				8E620A282F6371AE001417A8 /* Boxing Timer */,
+				0FE4DC3A8C6F624CDACFAA19 /* Boxing TimerUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		6407CDA1D48FC0392A32F81A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8E620A272F6371AE001417A8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -122,7 +205,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BD78F577699DA42C92777D06 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3F2312BA79E99FDCAE04E2A /* Boxing_TimerUITests.swift in Sources */,
+				6E80314D97B9CBF08C64D8F1 /* SnapshotHelper.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BAD4D8F28A09E76CA2A454EA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Boxing Timer";
+			target = 8E620A282F6371AE001417A8 /* Boxing Timer */;
+			targetProxy = F37EF0834F3D9B5BE5E63139 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		8E620A342F6371AF001417A8 /* Debug */ = {
@@ -314,9 +415,49 @@
 			};
 			name = Release;
 		};
+		A2B8D57F05490D28038933CF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				DEVELOPMENT_TEAM = 3LN6SHFTXK;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				PRODUCT_BUNDLE_IDENTIFIER = "john.Boxing-Timer.UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "Boxing Timer";
+			};
+			name = Debug;
+		};
+		B1509599D9BD0562DD16B657 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				DEVELOPMENT_TEAM = 3LN6SHFTXK;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				PRODUCT_BUNDLE_IDENTIFIER = "john.Boxing-Timer.UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "Boxing Timer";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		5FFE7E46A6184E834CD9FE9E /* Build configuration list for PBXNativeTarget "Boxing TimerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B1509599D9BD0562DD16B657 /* Release */,
+				A2B8D57F05490D28038933CF /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		8E620A242F6371AE001417A8 /* Build configuration list for PBXProject "Boxing Timer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
