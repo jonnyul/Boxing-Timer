@@ -1,6 +1,6 @@
 default_platform(:ios)
 
-KEY_ID       = "ZV4778F669"
+KEY_ID       = "3349GWYVGR"
 ISSUER_ID    = "220f0894-51a2-449c-ad61-9715441b4a11"
 TEAM_ID      = "3LN6SHFTXK"
 BUNDLE_ID    = "john.Boxing-Timer"
@@ -162,22 +162,6 @@ platform :ios do
 
     count = Dir.glob("#{output_dir}/*.png").count
     UI.success("Done! #{count} screenshots saved to fastlane/screenshots/en-US/")
-  end
-
-  # ── upload_screenshots: upload captured screenshots to App Store Connect ───
-  desc "Upload screenshots to App Store Connect"
-  lane :upload_screenshots do
-    key = api_key
-
-    upload_to_app_store(
-      api_key: key,
-      skip_binary_upload: true,
-      skip_metadata: true,
-      skip_screenshots: false,
-      screenshots_path: "./fastlane/screenshots",
-      force: true,
-      precheck_include_in_app_purchases: false
-    )
   end
 
 end
