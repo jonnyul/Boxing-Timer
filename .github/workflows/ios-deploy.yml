@@ -30,6 +30,13 @@ jobs:
         working-directory: ios
         run: bundle install
 
+      - name: Patch Fastlane OpenSSL compatibility
+        working-directory: ios
+        run: |
+          TOKEN_RB=$(bundle exec gem contents spaceship | grep 'connect_api/token\.rb$')
+          sed -i '' 's/OpenSSL::PKey::EC\.new/OpenSSL::PKey.read/g' "$TOKEN_RB"
+          echo "Patched $TOKEN_RB"
+
       - name: Write App Store Connect API Key
         env:
           ASC_API_KEY_CONTENT: ${{ secrets.ASC_API_KEY_CONTENT }}
