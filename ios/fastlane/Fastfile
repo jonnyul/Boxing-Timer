@@ -75,6 +75,7 @@ platform :ios do
       output_directory: "./build",
       output_name: "BoxingTimer",
       clean: true,
+      xcargs: xcode_auth_xcargs,
       export_options: {
         provisioningProfiles: {
           "john.Boxing-Timer" => "match AppStore john.Boxing-Timer"
