@@ -22,6 +22,7 @@ Boxing Timer/
 | Data / persistence | `ios/data-layer.md` | — |
 | Live Activity | `ios/live-activity.md` | `ios/build.md` |
 | Web privacy policy | `web/overview.md` | — |
+| CI/CD, GitHub, Fastlane, Vercel | `ci-cd.md` | — |
 | Unsure if a feature was removed | `decisions.md` | — |
 | Updating agents/ | `conventions.md` | — |
 
@@ -34,5 +35,6 @@ Boxing Timer/
 - [`ios/ui-system.md`](./ios/ui-system.md) — Design tokens, components, styling patterns
 - [`ios/live-activity.md`](./ios/live-activity.md) — Two-target architecture, sync protocol
 - [`web/overview.md`](./web/overview.md) — Privacy policy Next.js site
+- [`ci-cd.md`](./ci-cd.md) — GitHub repo, Fastlane lanes, Vercel, GitHub Actions, required secrets
 - [`decisions.md`](./decisions.md) — Removed features and architectural choices (read before adding anything)
 - [`conventions.md`](./conventions.md) — How to maintain this folder
