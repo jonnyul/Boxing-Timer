@@ -73,6 +73,60 @@ jobs:
           mkdir -p ~/asc-keys
           echo "$ASC_API_KEY_CONTENT" | base64 --decode > ~/asc-keys/AuthKey_3349GWYVGR.p8
 
+      - name: Prepare ASC version for submission
+        working-directory: ios
+        env:
+          ASC_KEY_FILEPATH: ~/asc-keys/AuthKey_3349GWYVGR.p8
+        run: |
+          bundle exec ruby << 'RUBY'
+          require 'spaceship'
+
+          key = Spaceship::ConnectAPI::Token.create(
+            key_id: "3349GWYVGR",
+            issuer_id: "220f0894-51a2-449c-ad61-9715441b4a11",
+            key_filepath: File.expand_path(ENV["ASC_KEY_FILEPATH"]),
+            duration: 1200,
+            in_house: false
+          )
+          Spaceship::ConnectAPI.token = key
+
+          app = Spaceship::ConnectAPI::App.find("john.Boxing-Timer")
+          version = app.get_edit_app_store_version(platform: "IOS")
+          puts "Version: #{version.version_string} (#{version.id})"
+
+          # Set contentRightsDeclaration on the version
+          begin
+            version.update(attributes: {
+              contentRightsDeclaration: "DOES_NOT_USE_THIRD_PARTY_CONTENT"
+            })
+            puts "Set contentRightsDeclaration"
+          rescue => e
+            puts "contentRightsDeclaration warning: #{e.message}"
+          end
+
+          # Create review detail if it doesn't exist
+          detail = version.fetch_app_store_review_detail
+          if detail.nil?
+            begin
+              Spaceship::ConnectAPI::AppStoreReviewDetail.create(
+                app_store_version_id: version.id,
+                attributes: {
+                  contactFirstName: "Jonathan",
+                  contactLastName: "Ulloa",
+                  contactPhone: "+1 5555550100",
+                  contactEmail: "jonathanulloa08@icloud.com",
+                  demoAccountRequired: false
+                }
+              )
+              puts "Created review detail"
+            rescue => e
+              puts "Review detail warning: #{e.message}"
+            end
+          else
+            puts "Review detail already exists"
+          end
+          RUBY
+
       - name: Run Fastlane release
         working-directory: ios
         env:
