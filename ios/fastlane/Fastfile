@@ -10,7 +10,7 @@ BUNDLE_ID    = "john.Boxing-Timer"
 # App Store Connect API Key
 # Passes key as base64 content to avoid OpenSSL 3.x "invalid curve name" bug
 def api_key
-  key_path = ENV["ASC_KEY_FILEPATH"] || File.expand_path("~/Desktop/appstuff/keys/apple-keys/AuthKey_#{KEY_ID}.p8")
+  key_path = File.expand_path(ENV["ASC_KEY_FILEPATH"] || "~/Desktop/appstuff/keys/apple-keys/AuthKey_#{KEY_ID}.p8")
   app_store_connect_api_key(
     key_id: KEY_ID,
     issuer_id: ISSUER_ID,
@@ -23,7 +23,7 @@ end
 
 # xcodebuild auth flags — lets Xcode auto-download dist cert + provisioning profile
 def xcode_auth_xcargs
-  key_path = ENV["ASC_KEY_FILEPATH"] || File.expand_path("~/Desktop/appstuff/keys/apple-keys/AuthKey_#{KEY_ID}.p8")
+  key_path = File.expand_path(ENV["ASC_KEY_FILEPATH"] || "~/Desktop/appstuff/keys/apple-keys/AuthKey_#{KEY_ID}.p8")
   "-allowProvisioningUpdates " \
   "-authenticationKeyPath #{key_path} " \
   "-authenticationKeyID #{KEY_ID} " \
