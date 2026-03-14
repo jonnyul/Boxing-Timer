@@ -6,7 +6,7 @@ TEAM_ID      = "3LN6SHFTXK"
 BUNDLE_ID    = "john.Boxing-Timer"
 
 def api_key
-  key_path = File.expand_path(ENV["ASC_KEY_FILEPATH"] || "~/Desktop/appstuff/keys/apple-keys/AuthKey_#{KEY_ID}.p8")
+  key_path = File.expand_path(ENV["ASC_KEY_FILEPATH"] || "~/keys/apple-keys/AuthKey_#{KEY_ID}.p8")
   app_store_connect_api_key(
     key_id: KEY_ID,
     issuer_id: ISSUER_ID,
@@ -18,7 +18,7 @@ end
 
 # xcodebuild auth flags — lets Xcode auto-download dist cert + provisioning profile
 def xcode_auth_xcargs
-  key_path = File.expand_path(ENV["ASC_KEY_FILEPATH"] || "~/Desktop/appstuff/keys/apple-keys/AuthKey_#{KEY_ID}.p8")
+  key_path = File.expand_path(ENV["ASC_KEY_FILEPATH"] || "~/keys/apple-keys/AuthKey_#{KEY_ID}.p8")
   "-allowProvisioningUpdates " \
   "-authenticationKeyPath #{key_path} " \
   "-authenticationKeyID #{KEY_ID} " \
@@ -56,6 +56,15 @@ platform :ios do
   lane :release do
     key = api_key
 
+    setup_ci
+
+    match(
+      type: "appstore",
+      app_identifier: BUNDLE_ID,
+      api_key: key,
+      readonly: false
+    )
+
     increment_build_number(xcodeproj: "Boxing Timer.xcodeproj")
 
     gym(
@@ -65,8 +74,7 @@ platform :ios do
       export_method: "app-store",
       output_directory: "./build",
       output_name: "BoxingTimer",
-      clean: true,
-      xcargs: xcode_auth_xcargs
+      clean: true
     )
 
     upload_to_app_store(
@@ -169,6 +177,18 @@ platform :ios do
 
     count = Dir.glob("#{output_dir}/*.png").count
     UI.success("Done! #{count} screenshots saved to fastlane/screenshots/en-US/")
+  end
+
+  # ── setup_match: first-time match cert population ───────────────────────────
+  desc "Create and store distribution cert + profile in Match (run once per app)"
+  lane :setup_match do
+    key = api_key
+    match(
+      type: "appstore",
+      app_identifier: BUNDLE_ID,
+      api_key: key,
+      readonly: false
+    )
   end
 
   # ── codesign: create/download distribution cert + provisioning profile ──────

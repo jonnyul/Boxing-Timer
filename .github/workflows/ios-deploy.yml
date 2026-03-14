@@ -77,4 +77,6 @@ jobs:
         working-directory: ios
         env:
           ASC_KEY_FILEPATH: ~/asc-keys/AuthKey_3349GWYVGR.p8
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
         run: bundle exec fastlane release

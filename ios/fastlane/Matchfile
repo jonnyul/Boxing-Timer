@@ -1,0 +1,4 @@
+git_url("https://github.com/jonnyul/fastlane-match")
+storage_mode("git")
+type("appstore")
+app_identifier(["john.Boxing-Timer"])
