@@ -74,7 +74,12 @@ platform :ios do
       export_method: "app-store",
       output_directory: "./build",
       output_name: "BoxingTimer",
-      clean: true
+      clean: true,
+      export_options: {
+        provisioningProfiles: {
+          "john.Boxing-Timer" => "match AppStore john.Boxing-Timer"
+        }
+      }
     )
 
     upload_to_app_store(
