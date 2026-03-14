@@ -3,7 +3,7 @@ name: iOS — Deploy to App Store
 on:
   push:
     branches:
-      - prod
+      - main
     paths:
       - 'ios/**'
 

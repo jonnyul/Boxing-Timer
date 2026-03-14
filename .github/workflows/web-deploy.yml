@@ -3,7 +3,7 @@ name: Web — Deploy Privacy Policy to Vercel
 on:
   push:
     branches:
-      - prod
+      - main
       - dev
     paths:
       - 'web/site/**'
@@ -29,7 +29,7 @@ jobs:
         run: npm ci
 
       - name: Deploy to Vercel (Production)
-        if: github.ref == 'refs/heads/prod'
+        if: github.ref == 'refs/heads/main'
         working-directory: web/site
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
