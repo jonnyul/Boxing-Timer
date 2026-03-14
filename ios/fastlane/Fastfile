@@ -74,8 +74,11 @@ platform :ios do
       submit_for_review: true,
       automatic_release: true,
       force: true,
-      skip_screenshots: true,
-      skip_metadata: true,
+      skip_screenshots: false,
+      overwrite_screenshots: true,
+      skip_metadata: false,
+      primary_category: "HEALTH_AND_FITNESS",
+      secondary_category: "SPORTS",
       precheck_include_in_app_purchases: false
     )
   end
