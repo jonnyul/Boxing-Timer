@@ -35,7 +35,8 @@ jobs:
       - name: Patch Fastlane OpenSSL compatibility
         working-directory: ios
         run: |
-          TOKEN_RB=$(bundle exec gem contents spaceship | grep 'connect_api/token\.rb$')
+          FASTLANE_DIR=$(bundle exec ruby -e "puts Gem::Specification.find_by_name('fastlane').gem_dir")
+          TOKEN_RB="$FASTLANE_DIR/spaceship/lib/spaceship/connect_api/token.rb"
           sed -i '' 's/OpenSSL::PKey::EC\.new/OpenSSL::PKey.read/g' "$TOKEN_RB"
           echo "Patched $TOKEN_RB"
 
