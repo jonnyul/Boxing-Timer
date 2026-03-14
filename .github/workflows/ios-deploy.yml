@@ -75,8 +75,6 @@ jobs:
 
       - name: Prepare ASC version for submission
         working-directory: ios
-        env:
-          ASC_KEY_FILEPATH: ~/asc-keys/AuthKey_3349GWYVGR.p8
         run: |
           bundle exec ruby << 'RUBY'
           require 'spaceship'
@@ -84,7 +82,7 @@ jobs:
           key = Spaceship::ConnectAPI::Token.create(
             key_id: "3349GWYVGR",
             issuer_id: "220f0894-51a2-449c-ad61-9715441b4a11",
-            key_filepath: File.expand_path(ENV["ASC_KEY_FILEPATH"]),
+            key_filepath: File.join(Dir.home, "asc-keys/AuthKey_3349GWYVGR.p8"),
             duration: 1200,
             in_house: false
           )
@@ -113,7 +111,7 @@ jobs:
                 attributes: {
                   contactFirstName: "Jonathan",
                   contactLastName: "Ulloa",
-                  contactPhone: "+1 5555550100",
+                  contactPhone: "+1 9152633431",
                   contactEmail: "jonathanulloa08@icloud.com",
                   demoAccountRequired: false
                 }
