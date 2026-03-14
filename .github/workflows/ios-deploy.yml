@@ -45,7 +45,10 @@ jobs:
           ASC_API_KEY_CONTENT: ${{ secrets.ASC_API_KEY_CONTENT }}
         run: |
           mkdir -p ~/asc-keys
-          echo "$ASC_API_KEY_CONTENT" > ~/asc-keys/AuthKey_3349GWYVGR.p8
+          # Use printf to preserve newlines; replace literal \n with real newlines in case secret was stored that way
+          printf '%s' "$ASC_API_KEY_CONTENT" | sed 's/\\n/\n/g' > ~/asc-keys/AuthKey_3349GWYVGR.p8
+          echo "Key file first line: $(head -1 ~/asc-keys/AuthKey_3349GWYVGR.p8)"
+          echo "Key file line count: $(wc -l < ~/asc-keys/AuthKey_3349GWYVGR.p8)"
 
       - name: Run Fastlane release
         working-directory: ios
