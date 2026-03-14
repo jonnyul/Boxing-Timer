@@ -2,6 +2,7 @@ default_platform(:ios)
 
 # App Store Connect API Key
 # Uses ASC_KEY_FILEPATH env var in CI, falls back to local path
+# IMPORTANT: Verify the issuer_id in App Store Connect > Users and Access > Keys
 def api_key
   key_path = ENV["ASC_KEY_FILEPATH"] || File.expand_path("~/Desktop/appstuff/keys/apple-keys/AuthKey_ZV4778F669.p8")
   app_store_connect_api_key(
@@ -15,14 +16,40 @@ end
 
 platform :ios do
 
+  # ── codesign: create/download dist cert + App Store provisioning profile ───
+  desc "Create distribution certificate and App Store provisioning profile"
+  lane :codesign do
+    key = api_key
+
+    get_certificates(
+      api_key: key,
+      team_id: "3LN6SHFTXK",
+      output_path: "./certs"
+    )
+
+    get_provisioning_profile(
+      api_key: key,
+      app_identifier: "john.Boxing-Timer",
+      provisioning_name: "Boxing Timer App Store",
+      team_id: "3LN6SHFTXK",
+      output_path: "./certs"
+    )
+  end
+
   # ── beta: build + upload to TestFlight ─────────────────────────────────────
   desc "Build and upload a new build to TestFlight"
   lane :beta do
     key = api_key
 
-    increment_build_number(
-      xcodeproj: "Boxing Timer.xcodeproj"
+    get_certificates(api_key: key, team_id: "3LN6SHFTXK", output_path: "./certs")
+    get_provisioning_profile(
+      api_key: key,
+      app_identifier: "john.Boxing-Timer",
+      team_id: "3LN6SHFTXK",
+      output_path: "./certs"
     )
+
+    increment_build_number(xcodeproj: "Boxing Timer.xcodeproj")
 
     gym(
       project: "Boxing Timer.xcodeproj",
@@ -45,9 +72,15 @@ platform :ios do
   lane :release do
     key = api_key
 
-    increment_build_number(
-      xcodeproj: "Boxing Timer.xcodeproj"
+    get_certificates(api_key: key, team_id: "3LN6SHFTXK", output_path: "./certs")
+    get_provisioning_profile(
+      api_key: key,
+      app_identifier: "john.Boxing-Timer",
+      team_id: "3LN6SHFTXK",
+      output_path: "./certs"
     )
+
+    increment_build_number(xcodeproj: "Boxing Timer.xcodeproj")
 
     gym(
       project: "Boxing Timer.xcodeproj",
@@ -59,7 +92,7 @@ platform :ios do
       clean: true
     )
 
-    deliver(
+    upload_to_app_store(
       api_key: key,
       submit_for_review: true,
       automatic_release: false,
