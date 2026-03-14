@@ -65,7 +65,14 @@ platform :ios do
       readonly: false
     )
 
-    increment_build_number(xcodeproj: "Boxing Timer.xcodeproj")
+    next_build = latest_testflight_build_number(
+      api_key: key,
+      app_identifier: BUNDLE_ID
+    ) + 1
+    increment_build_number(
+      build_number: next_build,
+      xcodeproj: "Boxing Timer.xcodeproj"
+    )
 
     gym(
       project: "Boxing Timer.xcodeproj",
