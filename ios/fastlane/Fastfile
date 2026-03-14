@@ -1,0 +1,89 @@
+default_platform(:ios)
+
+# App Store Connect API Key
+# Uses ASC_KEY_FILEPATH env var in CI, falls back to local path
+def api_key
+  key_path = ENV["ASC_KEY_FILEPATH"] || File.expand_path("~/Desktop/appstuff/keys/apple-keys/AuthKey_ZV4778F669.p8")
+  app_store_connect_api_key(
+    key_id: "ZV4778F669",
+    issuer_id: "220f0894-51a2-449c-ad61-9715441b4a1",
+    key_filepath: key_path,
+    duration: 1200,
+    in_house: false
+  )
+end
+
+platform :ios do
+
+  # ── beta: build + upload to TestFlight ─────────────────────────────────────
+  desc "Build and upload a new build to TestFlight"
+  lane :beta do
+    key = api_key
+
+    increment_build_number(
+      xcodeproj: "Boxing Timer.xcodeproj"
+    )
+
+    gym(
+      project: "Boxing Timer.xcodeproj",
+      scheme: "Boxing Timer",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "BoxingTimer",
+      clean: true
+    )
+
+    upload_to_testflight(
+      api_key: key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  # ── release: build + submit to App Store ───────────────────────────────────
+  desc "Build and submit a new version to the App Store"
+  lane :release do
+    key = api_key
+
+    increment_build_number(
+      xcodeproj: "Boxing Timer.xcodeproj"
+    )
+
+    gym(
+      project: "Boxing Timer.xcodeproj",
+      scheme: "Boxing Timer",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "BoxingTimer",
+      clean: true
+    )
+
+    deliver(
+      api_key: key,
+      submit_for_review: true,
+      automatic_release: false,
+      force: true,
+      skip_screenshots: true,
+      skip_metadata: false,
+      precheck_include_in_app_purchases: false
+    )
+  end
+
+  # ── screenshots: capture App Store screenshots ─────────────────────────────
+  desc "Capture App Store screenshots via snapshot"
+  lane :screenshots do
+    snapshot(
+      scheme: "Boxing Timer",
+      devices: [
+        "iPhone 16 Pro Max",
+        "iPhone 16 Pro",
+        "iPhone SE (3rd generation)"
+      ],
+      languages: ["en-US"],
+      output_directory: "./fastlane/screenshots",
+      clear_previous_screenshots: true
+    )
+  end
+
+end
