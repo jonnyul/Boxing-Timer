@@ -6,7 +6,7 @@ on:
       - prod
       - dev
     paths:
-      - 'web/privacy-policy/**'
+      - 'web/site/**'
 
 jobs:
   deploy:
@@ -22,15 +22,15 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: web/privacy-policy/package-lock.json
+          cache-dependency-path: web/site/package-lock.json
 
       - name: Install dependencies
-        working-directory: web/privacy-policy
+        working-directory: web/site
         run: npm ci
 
       - name: Deploy to Vercel (Production)
         if: github.ref == 'refs/heads/prod'
-        working-directory: web/privacy-policy
+        working-directory: web/site
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -40,7 +40,7 @@ jobs:
 
       - name: Deploy to Vercel (Preview / Dev)
         if: github.ref == 'refs/heads/dev'
-        working-directory: web/privacy-policy
+        working-directory: web/site
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}

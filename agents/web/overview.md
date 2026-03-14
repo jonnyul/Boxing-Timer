@@ -2,7 +2,7 @@
 
 ## Setup
 
-- **Location:** `web/privacy-policy/`
+- **Location:** `web/site/`
 - **Framework:** Next.js (App Router), TypeScript, Tailwind CSS
 - **Package manager:** npm
 - **Purpose:** Single-page privacy policy for the Boxing Timer iOS app
@@ -10,7 +10,7 @@
 ## Structure
 
 ```
-web/privacy-policy/
+web/site/
 ├── app/
 │   ├── layout.tsx      # Root layout with metadata
 │   ├── page.tsx        # Privacy policy content
@@ -24,7 +24,7 @@ web/privacy-policy/
 ## Commands
 
 ```bash
-cd web/privacy-policy
+cd web/site
 npm install
 npm run dev      # localhost:3000
 npm run build    # production build

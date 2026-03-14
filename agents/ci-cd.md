@@ -15,7 +15,7 @@ Located at `.github/workflows/`:
 | File | Trigger | What it does |
 |------|---------|--------------|
 | `ios-deploy.yml` | Push to `prod` (ios/** changes) | Builds archive + submits to App Store via Fastlane |
-| `web-deploy.yml` | Push to `prod` or `dev` (web/privacy-policy/** changes) | Deploys to Vercel production or preview |
+| `web-deploy.yml` | Push to `prod` or `dev` (web/site/** changes) | Deploys to Vercel production or preview |
 
 ## Required GitHub Secrets
 
@@ -51,10 +51,10 @@ Run from the `ios/` directory.
 
 ## Vercel (Web)
 
-The `web/privacy-policy/` site is configured for Vercel deployment.
+The `web/site/` site is configured for Vercel deployment.
 
 To set up for the first time:
-1. `cd web/privacy-policy && vercel login`
+1. `cd web/site && vercel login`
 2. `vercel link` — links to a Vercel project, creates `.vercel/project.json`
 3. Get the org ID and project ID from `.vercel/project.json`
 4. Add them as GitHub secrets (see above)
