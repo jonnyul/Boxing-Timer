@@ -1,11 +1,31 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # GitHub Actions — keeps workflow action versions up to date
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "weekly"
+      interval: weekly
+
+  # Fastlane gem
+  - package-ecosystem: bundler
+    directory: /ios
+    schedule:
+      interval: weekly
+
+  # Next.js privacy policy site
+  - package-ecosystem: npm
+    directory: /web/site
+    schedule:
+      interval: weekly
+
+  # Catalyst UI Kit — JS demo
+  - package-ecosystem: npm
+    directory: /web/catalyst-ui-kit/demo/javascript
+    schedule:
+      interval: weekly
+
+  # Catalyst UI Kit — TS demo
+  - package-ecosystem: npm
+    directory: /web/catalyst-ui-kit/demo/typescript
+    schedule:
+      interval: weekly
