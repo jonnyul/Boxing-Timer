@@ -44,7 +44,7 @@ jobs:
         run: |
           xcodebuild \
             -project "ios/Boxing Timer.xcodeproj" \
-            -scheme "Boxing Timer" \
+            -target "Boxing Timer" \
             -destination "generic/platform=iOS Simulator" \
             CODE_SIGNING_ALLOWED=NO \
             build
