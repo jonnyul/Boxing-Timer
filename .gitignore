@@ -69,3 +69,4 @@ android/captures/
 
 # Claude
 .claude/
+ios/Gemfile.lock
