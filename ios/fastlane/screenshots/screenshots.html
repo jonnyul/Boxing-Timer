@@ -189,9 +189,14 @@
           imageDisplay.alt             = img.alt;
           imageDisplay.dataset.counter = img.dataset.counter;
 
-          imageInfo.innerHTML          = '<h3>'+img.alt+'</h3>';
-          imageInfo.innerHTML         += decodeURI(img.src.split("/").pop());
-          imageInfo.innerHTML         += '<br />'+tmpImg.height+'&times;'+tmpImg.width+'px';
+          // Use DOM construction instead of innerHTML to avoid XSS
+          imageInfo.textContent = '';
+          const h3 = document.createElement('h3');
+          h3.textContent = img.alt;
+          imageInfo.appendChild(h3);
+          imageInfo.appendChild(document.createTextNode(decodeURI(img.src.split("/").pop())));
+          imageInfo.appendChild(document.createElement('br'));
+          imageInfo.appendChild(document.createTextNode(tmpImg.height + '\u00D7' + tmpImg.width + 'px'));
 
           overlay.style.display        = "block";
         });
