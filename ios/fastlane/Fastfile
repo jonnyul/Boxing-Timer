@@ -1,8 +1,8 @@
 default_platform(:ios)
 
-KEY_ID       = "3349GWYVGR"
-ISSUER_ID    = "220f0894-51a2-449c-ad61-9715441b4a11"
-TEAM_ID      = "3LN6SHFTXK"
+KEY_ID       = ENV["ASC_KEY_ID"]    || "3349GWYVGR"
+ISSUER_ID    = ENV["ASC_ISSUER_ID"] || "220f0894-51a2-449c-ad61-9715441b4a11"
+TEAM_ID      = ENV["APPLE_TEAM_ID"] || "3LN6SHFTXK"
 BUNDLE_ID    = "john.Boxing-Timer"
 
 def api_key
