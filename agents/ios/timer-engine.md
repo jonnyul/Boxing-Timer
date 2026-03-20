@@ -67,6 +67,20 @@ Audio playback is triggered separately by the phase-transition methods and notic
 - `resume()` — restarts the timer, updates live activity with `isPaused: false`
 - The live activity uses `timerRange: ClosedRange<Date>` — when paused, `isPaused: true` is set and the view shows a static string instead of `Text(timerInterval:)`
 
+## Audio — Custom Bell Sounds
+
+`AudioManager` plays custom `.wav` files bundled in the app for key events:
+
+| Function | File | Fallback |
+|----------|------|---------|
+| `playRoundStart()` | `round_start.wav` | — |
+| `playNoticeWarning()` | `round_end_notice.wav` | — |
+| `playRoundEnd()` | — | system sound 1014 |
+| `playBreakStart()` | — | system sound 1057 |
+| `playGetReady()` | — | system sound 1110 |
+
+Players are preloaded at `AudioManager.init()` so the first play has no latency. `makePlayer(named:)` loads from `Bundle.main`. `playCustom(_:)` resets `currentTime = 0` before playing so rapid re-triggers always start from the beginning.
+
 ## Background Keepalive
 
 `AudioManager` starts a silent looping `AVAudioPlayer` when a workout begins. This keeps the app's audio session active, which keeps the app running in the background on iOS. Result: the timer keeps running and bells still fire while the phone is locked, without requiring local notifications.

@@ -52,6 +52,8 @@ Matches the iOS app visually:
 
 Effective date: March 12, 2026.
 
+The page renders a `PrivacyPolicy` default export with a `Section` helper component for consistent heading/body layout. Style matches the iOS app (navy `#1C2A4A` background, white text, blue-300 accent labels).
+
 ## Pending
 
 - Replace placeholder `privacy@boxingtimer.app` with a real address before publishing
