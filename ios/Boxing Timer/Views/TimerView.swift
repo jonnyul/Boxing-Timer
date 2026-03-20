@@ -11,15 +11,24 @@ struct TimerView: View {
                 Spacer()
 
                 Text(timerVM.phaseDisplayText)
-                    .aggressiveHeading(size: 48)
+                    .font(.system(size: 48, weight: .black))
+                    .italic()
+                    .textCase(.uppercase)
+                    .tracking(-0.5)
                     .foregroundColor(phaseBannerColor)
-                    .modifier(PulseEffect(active: timerVM.isInNoticeWindow, scale: 1.05))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.4)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 20)
                     .padding(.bottom, 8)
                 Text(timerVM.timeRemaining.mmss)
-                    .timerDisplay(size: 96)
-                    .padding(.trailing, 4)
+                    .font(.system(size: 96, weight: .black, design: .monospaced))
+                    .tracking(-2)
+                    .monospacedDigit()
                     .foregroundColor(timerVM.isInNoticeWindow ? .appRed : .white)
-                    .modifier(PulseEffect(active: timerVM.isInNoticeWindow, scale: 1.03))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .padding(.trailing, 4)
                     .padding(.top, 20)
                     .padding(.bottom, 16)
                 HStack(spacing: 24) {
@@ -107,15 +116,17 @@ struct TimerView: View {
             Text(value)
                 .font(.system(size: 18, weight: .bold, design: .monospaced))
                 .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
             Text(title)
                 .labelUppercase(size: 8)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
         .background(Color.white.opacity(0.05))
-        .cornerRadius(12)
+        .cornerRadius(AppDesign.Radius.card)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: AppDesign.Radius.card)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
     }
@@ -202,28 +213,6 @@ struct SegmentedRoundProgressBar: View {
     }
 }
 
-struct PulseEffect: ViewModifier {
-    let active: Bool
-    var scale: CGFloat = 1.05
-
-    @State private var animating = false
-
-    func body(content: Content) -> some View {
-        content
-            .scaleEffect(animating ? scale : 1)
-            .onChange(of: active) {
-                if active {
-                    withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
-                        animating = true
-                    }
-                } else {
-                    withAnimation(.spring(duration: 0.15)) {
-                        animating = false
-                    }
-                }
-            }
-    }
-}
 
 #Preview {
     TimerView()

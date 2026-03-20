@@ -22,7 +22,7 @@ struct Boxing_TimerApp: App {
                     .tabItem {
                         AppTabLabel(
                             title: "Timer",
-                            symbol: "timer",
+                            symbol: "clock.fill",
                             color: UIColor(Color.appCyan)
                         )
                     }

@@ -16,7 +16,9 @@ struct NumericSettingEditorSheet: View {
     @State private var invalidFlash = false
     @State private var shakeTrigger = 0
 
-    private let keypadButtonHeight: CGFloat = 52
+    // keypadButtonHeight = exactly half of SettingRow card height (76 / 2 = 38)
+    // digitBoxHeight fills the digitDisplay card to match SettingRow height: 52 + 2*12 (cardStyle) = 76
+    private let keypadButtonHeight: CGFloat = 44
     private let digitBoxHeight: CGFloat = 52
     private let digitBoxWidth: CGFloat = 42
 
@@ -45,49 +47,31 @@ struct NumericSettingEditorSheet: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 18) {
-                VStack(spacing: 12) {
-                    IconBadge(systemName: icon, color: iconColor)
-
-                    Text(title)
-                        .font(.system(size: 24, weight: .black))
-                        .italic()
-                        .textCase(.uppercase)
-                        .foregroundColor(.white)
-
-                    Text(instructionsText)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.appTextSecondary)
-                        .multilineTextAlignment(.center)
-                }
-                .padding(.top, 4)
-
                 digitDisplay
                 keypad
             }
             .padding(20)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .frame(maxWidth: .infinity)
             .background(Color.appBackgroundDeep.ignoresSafeArea())
             .safeAreaInset(edge: .bottom) {
                 Button {
                     applyChanges()
                 } label: {
-                    Text("Apply")
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
                 }
-                .buttonStyle(
-                    TintedChunkyButtonStyle(
-                        backgroundColor: iconColor,
-                        pressedBackgroundColor: pressedIconColor,
-                        foregroundColor: .white
-                    )
-                )
+                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: iconColor, pressedBackground: pressedIconColor))
                 .padding(.horizontal, 20)
-                .padding(.top, 8)
                 .padding(.bottom, 8)
                 .background(Color.appBackgroundDeep)
             }
         }
-        .presentationDetents([.fraction(0.86)])
+        .presentationDetents([.height(420)])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Color.appBackgroundDeep)
     }
 
     private var instructionsText: String {
@@ -127,7 +111,6 @@ struct NumericSettingEditorSheet: View {
             }
             .modifier(ShakeEffect(trigger: shakeTrigger))
         }
-        .padding(.vertical, 18)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity)
         .cardStyle(padding: 12)

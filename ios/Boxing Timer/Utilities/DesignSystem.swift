@@ -1,5 +1,110 @@
 import SwiftUI
 
+// MARK: - Design Tokens
+// Single source of truth for all visual constants in the app.
+// When adding a new feature, pull values from here instead of hardcoding.
+enum AppDesign {
+
+    // MARK: Corner Radii
+    enum Radius {
+        static let card: CGFloat = 16        // cards, sheet containers, chunky buttons
+        static let badge: CGFloat = 12       // icon badges, text fields, input rows
+        static let button: CGFloat = 10      // compact inline buttons (value box, +/-)
+        static let pill: CGFloat = 999       // fully-rounded pills (use on any height)
+        static let heatmap: CGFloat = 3      // contribution graph squares + legend swatches
+    }
+
+    // MARK: Spacing
+    enum Spacing {
+        static let xxs: CGFloat = 4
+        static let xs: CGFloat = 6
+        static let sm: CGFloat = 8
+        static let md: CGFloat = 12
+        static let lg: CGFloat = 16          // default screen / card padding
+        static let xl: CGFloat = 20          // section padding, screen insets
+        static let xxl: CGFloat = 24
+    }
+
+    // MARK: Card Surface
+    // Use .cardStyle(padding:) modifier for standard cards.
+    enum Card {
+        static let background = Color.white.opacity(0.05)
+        static let border = Color.white.opacity(0.08)
+        static let borderWidth: CGFloat = 1
+        static let radius: CGFloat = Radius.card
+    }
+
+    // MARK: Icon Badge
+    // Use IconBadge(systemName:color:) for consistency.
+    enum Badge {
+        static let size: CGFloat = 44
+        static let iconSize: CGFloat = 16
+        static let backgroundOpacity: Double = 0.15
+        static let radius: CGFloat = Radius.badge
+    }
+
+    // MARK: Controls (inline buttons inside setting rows)
+    enum Control {
+        static let height: CGFloat = 44      // value box, +/- buttons, icon badge
+        static let radius: CGFloat = Radius.button
+        static let background = Color.white.opacity(0.04)
+    }
+
+    // MARK: Action Buttons (full-width icon buttons: play, reset, plus, checkmark, back)
+    // These are the standalone icon-only buttons used at the bottom of screens.
+    enum ActionButton {
+        static let height: CGFloat = 44       // matches Control.height
+        static let radius: CGFloat = Radius.badge  // 12pt
+    }
+
+    // MARK: Workout Info Block (total workout time display — home header + preset editor)
+    enum WorkoutInfo {
+        static let height: CGFloat = ActionButton.height
+        static let radius: CGFloat = ActionButton.radius
+        static let iconSize: CGFloat = 14
+        static let fontSize: CGFloat = 18
+        static let background = Color(hex: "5DA9FF").opacity(0.15)
+    }
+
+    // MARK: Semantic Icons
+    // These SF Symbol names are used consistently across all screens.
+    // Always pair the icon with its matching color so they read the same everywhere.
+    enum Icons {
+        // Timer settings rectangles (SettingRow) + preset card stats + TimerView info cards
+        static let rounds    = "repeat"           // color: .green
+        static let work      = "flame.fill"       // color: .orange   (round duration)
+        static let rest      = "pause.fill"       // color: .blue     (break duration)
+        static let getReady  = "hourglass"        // color: .yellow
+        static let roundEnd  = "bell.fill"        // color: .yellow   (round end notice)
+        static let breakEnd  = "bell.fill"        // color: .cyan     (break end notice)
+        static let time      = "clock.fill"       // color: .appOrange (total workout time)
+
+        // Actions
+        static let play      = "play.fill"        // color: navy (on cyan bg) or white
+        static let plus      = "plus"             // color: white (on orange bg)
+        static let reset     = "arrow.2.circlepath" // color: white (on ghost bg)
+        static let confirm   = "checkmark"        // color: white (on orange bg)
+        static let back      = "chevron.left"     // color: white (on ghost bg)
+    }
+
+    // MARK: Typography (reference — use the .aggressiveHeading / .labelUppercase / .timerDisplay modifiers)
+    // Screen titles:  .aggressiveHeading(size: 32–48), two-color via Text concatenation
+    // Section labels: .labelUppercase(size: 10)
+    // Card body:      .system(size: 15, weight: .semibold), white, italic for setting row labels
+    // Value readout:  .system(size: 20, weight: .bold, design: .monospaced), iconColor
+    // Timer display:  .timerDisplay(size: 96)
+
+    // MARK: Screen Layout
+    enum Layout {
+        static let horizontalPadding: CGFloat = Spacing.lg   // padding(.horizontal) on scroll content
+        static let topPadding: CGFloat = Spacing.xl          // padding from safe-area top to first element
+        static let sectionSpacing: CGFloat = Spacing.md      // VStack spacing between major sections
+        static let rowSpacing: CGFloat = Spacing.md          // spacing between list rows (e.g. SettingRows)
+    }
+}
+
+// MARK: - View Modifiers
+
 struct AggressiveHeading: ViewModifier {
     var size: CGFloat = 24
 
@@ -151,14 +256,17 @@ struct PressFeedbackButtonStyle: ButtonStyle {
 struct IconBadge: View {
     let systemName: String
     var color: Color = .appCyan
+    var size: CGFloat = 44
+    var iconSize: CGFloat? = nil
 
     var body: some View {
+        let resolvedIconSize = iconSize ?? (size * 16 / 44)
         Image(systemName: systemName)
-            .font(.system(size: 16, weight: .semibold))
+            .font(.system(size: resolvedIconSize, weight: .semibold))
             .foregroundColor(color)
-            .frame(width: 44, height: 44)
+            .frame(width: size, height: size)
             .background(color.opacity(0.15))
-            .cornerRadius(12)
+            .cornerRadius(size * 12 / 44)
     }
 }
 

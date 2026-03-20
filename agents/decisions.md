@@ -11,6 +11,7 @@ These were deliberately cut. Re-adding any of them will be reverted.
 | **Gloves Mode** (`startInGlovesMode`) | `TimerSettings`, `TimerViewModel`, `HomeView`, `OptionsView`, all preset defaults | Removed at user request |
 | **About section** in OptionsView ("Remove Ads", "More On Web") | `OptionsView` | Removed at user request |
 | **Behavior section** in OptionsView | `OptionsView` | Removed at user request |
+| **Audio Configuration section** in OptionsView (bell-type picker) | `OptionsView` | Removed at user request — bell type hardcoded to Classic (1) in `AudioManager` until custom sound files are added |
 | **Summary card** in HomeView | `HomeView` | Removed at user request — round/work/rest/total overview row |
 | **Stats action buttons** | `StatsView` | Removed — "More On Web", "Close", "Clear All" |
 | **Recent Workouts list** | `StatsView` | Removed — the workout history table is gone |
@@ -21,6 +22,21 @@ These were deliberately cut. Re-adding any of them will be reverted.
 | **Live Activity** | `Boxing Timer Live Activity` extension + `LiveActivityManager` + `WorkoutTimerAttributes` | Removed at user request |
 
 ## Design Decisions
+
+### Preset editing is push navigation, not a sheet
+`PresetEditView` is pushed onto `PresetsView`'s `NavigationStack` (tab bar stays visible). It is no longer a `.sheet`. `AppNavigationState.presetsPath` drives the stack. `presetsReturnTab` records which tab initiated the navigation so the `<` back button can return there.
+
+### Button height standard — 44pt
+All standalone action buttons (play, reset, plus, checkmark, back, preset card play) are 44pt tall with 12pt corner radius. This matches the height of the value box inside `SettingRow`. Defined as `AppDesign.ActionButton.height` and `AppDesign.ActionButton.radius`.
+
+### Semantic icon map is fixed
+The same SF Symbol is always used for the same concept across all screens. Defined in `AppDesign.Icons`. Do not use a different icon for "rounds" or "work" on any new screen — pull from the map.
+
+### SettingRow labels are uppercase
+All `SettingRow` title text has `.textCase(.uppercase)` applied. Short names are used (ROUND, READY, ROUND LENGTH, ROUND END, BREAK LENGTH, BREAK END) to ensure they fit in one line at 15pt.
+
+### Preset card — no text labels on stats row
+The stats row in `PresetCard` uses icon+value pairs only (no "Work" or "Rest" word labels). Values are MM:SS format. Icons are `repeat` (rounds count), `flame.fill` (work), `pause.fill` (rest), colored to match the timer page rectangles.
 
 ### Preset card accent color — all orange
 All preset cards use `.appOrange` for the accent bar and time label. Previously alternated cyan/red per card. Changed because cyan=active/positive and red=danger throughout the app, so alternating sent confusing signals. Orange is consistent with the presets page identity color.

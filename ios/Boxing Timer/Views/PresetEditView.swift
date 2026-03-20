@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PresetEditView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navigationState: AppNavigationState
 
     let preset: Preset?
     let initialSettings: TimerSettings?
@@ -38,41 +39,42 @@ struct PresetEditView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                AppBackground()
+        ZStack {
+            AppBackground()
 
-                ScrollView {
-                    VStack(spacing: 24) {
-                        HStack {
-                            Spacer()
-                            VStack(spacing: 2) {
-                                Text("ROUND")
-                                    .aggressiveHeading(size: 24)
-                                    .foregroundColor(.appCyan)
-                                Text("SETTINGS")
-                                    .aggressiveHeading(size: 24)
-                                    .foregroundColor(.white)
+            ScrollView {
+                VStack(spacing: 12) {
+                    HStack(spacing: 12) {
+                        Button {
+                            dismiss()
+                            if navigationState.presetsReturnTab != .presets {
+                                navigationState.selectedTab = navigationState.presetsReturnTab
                             }
-
-                            Spacer()
-                        }
-                        .padding(.top, 12)
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            SectionHeader(title: "PRESET NAME")
-
-                            TextField("Enter preset name", text: $name)
-                                .font(.system(size: 18, weight: .semibold))
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(.white)
-                                .padding()
-                                .background(Color.white.opacity(0.05))
-                                .cornerRadius(12)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                                )
+                                .frame(width: 44, height: 44)
                         }
+                        .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: Color.white.opacity(0.08), pressedBackground: Color.white.opacity(0.15)))
+
+                        Text("PRESETS").foregroundColor(.appOrange)
+                            .aggressiveHeading(size: 32)
+
+                        Spacer()
+                    }
+
+                    TextField("Enter preset name", text: $name)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .frame(height: 44)
+                        .background(Color.white.opacity(0.05))
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        )
 
                         TimerSettingsEditor(
                             numberOfRounds: $numberOfRounds,
@@ -83,39 +85,38 @@ struct PresetEditView: View {
                             breakEndNotice: $breakEndNotice
                         )
 
-                        HStack {
-                            Spacer()
+                        HStack(spacing: 12) {
                             HStack(spacing: 8) {
                                 Image(systemName: "clock.fill")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.appCyan)
-                                Text("Total Workout:")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.appTextSecondary)
+                                    .font(.system(size: AppDesign.WorkoutInfo.iconSize))
+                                    .foregroundColor(.white)
                                 Text(totalWorkoutTime)
-                                    .font(.system(size: 18, weight: .bold, design: .monospaced))
-                                    .foregroundColor(.appCyan)
+                                    .font(.system(size: AppDesign.WorkoutInfo.fontSize, weight: .bold, design: .monospaced))
                             }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .background(Color.appCyan.opacity(0.1))
-                            .cornerRadius(12)
-                            Spacer()
-                        }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: AppDesign.ActionButton.height)
+                            .background(AppDesign.WorkoutInfo.background)
+                            .cornerRadius(AppDesign.ActionButton.radius)
 
-                        Button("CONFIRM SETTINGS") {
-                            savePreset()
+                            Button {
+                                savePreset()
+                            } label: {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 44)
+                            }
+                            .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
+                            .disabled(trimmedName.isEmpty)
+                            .opacity(trimmedName.isEmpty ? 0.5 : 1)
                         }
-                        .buttonStyle(.chunkyPrimary)
-                        .disabled(trimmedName.isEmpty)
-                        .opacity(trimmedName.isEmpty ? 0.5 : 1)
-                        .padding(.top, 8)
-                    }
-                    .padding()
                 }
+                .padding()
             }
-            .navigationBarHidden(true)
         }
+        .navigationBarHidden(true)
     }
 
     private var trimmedName: String {
@@ -146,6 +147,9 @@ struct PresetEditView: View {
 
         onSave(newPreset)
         dismiss()
+        if navigationState.presetsReturnTab != .presets {
+            navigationState.selectedTab = navigationState.presetsReturnTab
+        }
     }
 }
 

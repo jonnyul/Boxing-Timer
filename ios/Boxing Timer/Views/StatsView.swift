@@ -9,20 +9,10 @@ struct StatsView: View {
                 AppBackground()
 
                 ScrollView {
-                    VStack(spacing: 24) {
-                        HStack {
-                            Spacer()
-                            VStack(alignment: .center, spacing: 4) {
-                                Text("TRAINING")
-                                    .aggressiveHeading(size: 32)
-                                    .foregroundColor(.white)
-                                Text("STATS")
-                                    .aggressiveHeading(size: 32)
-                                    .foregroundColor(.appStatsGreen)
-                            }
-                            Spacer()
-                        }
-                        .padding(.top, 20)
+                    VStack(spacing: 12) {
+                        Text("STATS").foregroundColor(.appStatsGreen)
+                            .aggressiveHeading(size: 32)
+                            .frame(maxWidth: .infinity, alignment: .center)
 
                         HStack(spacing: 12) {
                             StatSummaryCard(title: "SESSIONS", value: "\(statsVM.totalWorkouts)", icon: "figure.boxing", iconColor: .orange)
@@ -38,7 +28,8 @@ struct StatsView: View {
                         }
                         .cardStyle()
                     }
-                    .padding()
+                    .padding([.horizontal, .bottom])
+                    .padding(.top, 20)
                 }
             }
             .navigationBarHidden(true)
@@ -128,7 +119,7 @@ struct ContributionHeatmap: View {
                     .foregroundColor(.appTextSecondary)
 
                 ForEach([0.0, 0.25, 0.5, 0.75, 1.0], id: \.self) { level in
-                    RoundedRectangle(cornerRadius: 2)
+                    RoundedRectangle(cornerRadius: AppDesign.Radius.heatmap)
                         .fill(level == 0 ? Color.white.opacity(0.06) : Color.appStatsGreen.opacity(0.25 + level * 0.75))
                         .frame(width: squareSize, height: squareSize)
                 }
