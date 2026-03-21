@@ -110,7 +110,7 @@ jobs:
           Spaceship::ConnectAPI.token = token
 
           app     = Spaceship::ConnectAPI::App.find(BUNDLE_ID)
-          versions = app.get_app_store_versions(platform: "IOS")
+          versions = app.get_app_store_versions(filter: { platform: "IOS" })
           editable_states = %w[PREPARE_FOR_SUBMISSION DEVELOPER_REJECTED REJECTED METADATA_REJECTED INVALID_BINARY]
           version = versions.find { |candidate| candidate.version_string == TARGET_VERSION }
           editable = versions.find { |candidate| editable_states.include?(candidate.app_store_state) }
@@ -128,7 +128,7 @@ jobs:
             puts "Created editable version #{TARGET_VERSION}"
           end
 
-          version = app.get_app_store_versions(platform: "IOS").find { |candidate| candidate.version_string == TARGET_VERSION }
+          version = app.get_app_store_versions(filter: { platform: "IOS" }).find { |candidate| candidate.version_string == TARGET_VERSION }
           if version.nil?
             puts "Could not find target version #{TARGET_VERSION} after preparation; skipping ASC pre-submission patch."
             exit 0

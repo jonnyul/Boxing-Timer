@@ -20,7 +20,9 @@ def blocking_review_version(app, target_version)
     PENDING_DEVELOPER_RELEASE
   ]
 
-  app.get_app_store_versions(platform: Spaceship::ConnectAPI::Platform::IOS).find do |version|
+  app.get_app_store_versions(
+    filter: { platform: Spaceship::ConnectAPI::Platform::IOS }
+  ).find do |version|
     blocking_states.include?(version.app_store_state) && version.version_string != target_version
   end
 end
