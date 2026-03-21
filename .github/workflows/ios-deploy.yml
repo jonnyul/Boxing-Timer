@@ -165,8 +165,33 @@ jobs:
           end
           RUBY
 
-      - name: Run Fastlane release
+      - name: Validate iOS build
+        working-directory: ios
+        run: |
+          xcodebuild \
+            -project "Boxing Timer.xcodeproj" \
+            -target "Boxing Timer" \
+            -destination "generic/platform=iOS" \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Verify match repo access
         if: github.ref == 'refs/heads/main'
+        id: verify_match
+        env:
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        run: |
+          if git -c http.extraheader="Authorization: Basic ${MATCH_GIT_BASIC_AUTHORIZATION}" \
+            ls-remote https://github.com/jonnyul/fastlane-match >/dev/null 2>&1; then
+            echo "can_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "can_release=false" >> "$GITHUB_OUTPUT"
+            echo "Match repo access failed; skipping App Store submission path."
+          fi
+
+      - name: Run Fastlane release
+        if: github.ref == 'refs/heads/main' && steps.verify_match.outputs.can_release == 'true'
         working-directory: ios
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}

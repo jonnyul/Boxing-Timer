@@ -1,8 +1,8 @@
 # CI/CD — GitHub Actions & Vercel
 
-## Status: FULLY WORKING (as of 2026-03-21)
+## Status: BUILD GREEN, SUBMISSION GATED (as of 2026-03-21)
 
-Every push to `main` that changes `ios/**` automatically builds, signs, uploads, and submits to App Store review. Pushes to `dev` run the same iOS pipeline but skip the App Store submission steps.
+Every push to `main` that changes `ios/**` now performs a real iOS build in GitHub Actions. App Store submission on `main` only runs when the workflow can authenticate to the private `fastlane-match` repo. Pushes to `dev` run the same build validation path but skip the App Store submission steps.
 
 For Fastlane details see [agents/ios/fastlane.md](./ios/fastlane.md).
 
@@ -21,7 +21,7 @@ For Fastlane details see [agents/ios/fastlane.md](./ios/fastlane.md).
 
 | File | Trigger | What it does |
 |------|---------|--------------|
-| `ios-deploy.yml` | Push to `main` or `dev` (`ios/**` or workflow changes) | Builds on both branches; runs App Store submission only on `main` |
+| `ios-deploy.yml` | Push to `main` or `dev` (`ios/**` or workflow changes) | Validates iOS build on both branches; runs App Store submission on `main` only when match auth succeeds |
 
 ### ios-deploy.yml — Step breakdown
 
@@ -34,7 +34,9 @@ For Fastlane details see [agents/ios/fastlane.md](./ios/fastlane.md).
 | Patch Fastlane compatibility | both | Applies OpenSSL 3.x and nil review-detail fixes |
 | Write App Store Connect API Key | both | Decodes `ASC_API_KEY_CONTENT` to `~/asc-keys/AuthKey_${ASC_KEY_ID}.p8` |
 | Prepare ASC version for submission | `main` only | Sets `contentRightsDeclaration` and creates `appStoreReviewDetails` if missing |
-| Run Fastlane release | `main` only | Executes `fastlane release` |
+| Validate iOS build | both | Runs `xcodebuild` against target `Boxing Timer` with signing disabled |
+| Verify match repo access | `main` only | Checks whether the workflow can authenticate to `jonnyul/fastlane-match` |
+| Run Fastlane release | `main` only | Executes `fastlane release` only if match repo access succeeds |
 
 ---
 
@@ -85,3 +87,4 @@ Fastlane-specific behavior, match setup, screenshot capture details, and release
 - **SDK Warning (deadline: 2026-04-28):** ITMS-90725: Must build with iOS 26 SDK (Xcode 26) by April 28, 2026. Non-blocking until then.
 - **Node.js 20 deprecation (deadline: 2026-06-02):** `actions/checkout@v4` uses Node.js 20. Non-blocking until June 2026.
 - **CodeQL workflow removed:** This repo is private, so the previous CodeQL workflow was removed from `dev` and should stay absent unless the repo plan changes.
+- **Current release blocker:** `MATCH_GIT_BASIC_AUTHORIZATION` does not currently allow GitHub Actions to clone `https://github.com/jonnyul/fastlane-match`, so the App Store submission path is gated behind a repository-access check instead of failing the whole build.
