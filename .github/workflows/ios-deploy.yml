@@ -182,8 +182,12 @@ jobs:
         env:
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
         run: |
-          if git -c http.extraheader="Authorization: Basic ${MATCH_GIT_BASIC_AUTHORIZATION}" \
-            ls-remote https://github.com/jonnyul/fastlane-match >/dev/null 2>&1; then
+          AUTH_HEADER=$(printf '%s' "$MATCH_GIT_BASIC_AUTHORIZATION" | tr -d '\r\n')
+          if GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 \
+            git -c credential.helper= \
+                -c core.askPass= \
+                -c http.extraheader="Authorization: Basic ${AUTH_HEADER}" \
+                ls-remote https://github.com/jonnyul/fastlane-match >/dev/null 2>&1; then
             echo "can_release=true" >> "$GITHUB_OUTPUT"
           else
             echo "can_release=false" >> "$GITHUB_OUTPUT"
