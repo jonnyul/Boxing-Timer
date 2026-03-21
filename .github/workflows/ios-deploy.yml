@@ -107,6 +107,10 @@ jobs:
 
           app     = Spaceship::ConnectAPI::App.find(BUNDLE_ID)
           version = app.get_edit_app_store_version(platform: "IOS")
+          if version.nil?
+            puts "No editable App Store version found; skipping ASC pre-submission patch."
+            exit 0
+          end
           vid     = version.id
           puts "Version: #{version.version_string} (#{vid})"
 
