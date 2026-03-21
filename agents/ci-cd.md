@@ -22,6 +22,12 @@ For Fastlane details see [agents/ios/fastlane.md](./ios/fastlane.md).
 | File | Trigger | What it does |
 |------|---------|--------------|
 | `ios-deploy.yml` | Push to `main` or `dev` (`ios/**` or workflow changes) | Validates iOS build on both branches; runs App Store submission on `main` |
+| `codeql.yml` | Push/PR on `main` or `dev` for `ios/**`, `web/**`, or the workflow file itself; weekly schedule | Runs CodeQL analysis for Actions, JavaScript/TypeScript, and Swift |
+
+## Agent Waiting Rules
+
+- Wait for `ios-deploy.yml` runs to finish when the task depends on build, signing, TestFlight/App Store upload, or Fastlane release results.
+- Do not wait for `codeql.yml` to finish unless the user explicitly asks for CodeQL results. Triggering or restoring CodeQL is enough for normal GitHub maintenance work.
 
 ### ios-deploy.yml — Step breakdown
 
@@ -86,5 +92,5 @@ Fastlane-specific behavior, match setup, screenshot capture details, and release
 
 - **SDK Warning (deadline: 2026-04-28):** The workflow now targets `macos-26` so releases use Xcode 26 once GitHub schedules that runner. Re-upload after this change to clear ITMS-90725.
 - **Node.js 20 deprecation (deadline: 2026-06-02):** `actions/checkout@v4` uses Node.js 20. Non-blocking until June 2026.
-- **CodeQL workflow removed:** This repo is private, so the previous CodeQL workflow was removed from `dev` and should stay absent unless the repo plan changes.
+- **CodeQL restored:** `codeql.yml` is back in the repo. Agents should not block on CodeQL completion unless the task is specifically about CodeQL findings.
 - **Submission confirmed:** version `1.0.1` / build `11` was uploaded successfully from GitHub Actions on March 21, 2026, and App Store Connect moved it to `Ready For Review`.
