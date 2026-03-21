@@ -27,6 +27,8 @@ Located at `ios/fastlane/`. Always run from the `ios/` directory.
 
 The `release` lane fetches `latest_testflight_build_number` from ASC and adds 1. It never reads from the local xcodeproj.
 
+When a version is already in `Ready For Review`, the release lane skips screenshot upload. App Store Connect can reject screenshot deletion/replacement for an in-review version, but binary upload and submission can still proceed.
+
 ---
 
 ## ENV Fallbacks (Fastfile / Appfile)
