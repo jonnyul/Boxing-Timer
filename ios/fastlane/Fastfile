@@ -5,6 +5,26 @@ ISSUER_ID    = ENV["ASC_ISSUER_ID"] || "220f0894-51a2-449c-ad61-9715441b4a11"
 TEAM_ID      = ENV["APPLE_TEAM_ID"] || "3LN6SHFTXK"
 BUNDLE_ID    = "john.Boxing-Timer"
 
+def marketing_version
+  get_version_number(
+    xcodeproj: "Boxing Timer.xcodeproj",
+    target: "Boxing Timer"
+  )
+end
+
+def blocking_review_version(app, target_version)
+  blocking_states = %w[
+    WAITING_FOR_REVIEW
+    IN_REVIEW
+    PENDING_APPLE_RELEASE
+    PENDING_DEVELOPER_RELEASE
+  ]
+
+  app.get_app_store_versions(platform: Spaceship::ConnectAPI::Platform::IOS).find do |version|
+    blocking_states.include?(version.app_store_state) && version.version_string != target_version
+  end
+end
+
 def api_key
   key_path = File.expand_path(ENV["ASC_KEY_FILEPATH"] || "~/keys/apple-keys/AuthKey_#{KEY_ID}.p8")
   app_store_connect_api_key(
@@ -55,6 +75,7 @@ platform :ios do
   desc "Build and submit a new version to the App Store"
   lane :release do
     key = api_key
+    target_version = marketing_version
 
     setup_ci
 
@@ -74,6 +95,19 @@ platform :ios do
       xcodeproj: "Boxing Timer.xcodeproj"
     )
 
+    app = Spaceship::ConnectAPI::App.find(BUNDLE_ID)
+    review_blocker = blocking_review_version(app, target_version)
+    should_submit_for_review = review_blocker.nil?
+
+    if should_submit_for_review
+      UI.message("Submitting version #{target_version} for review.")
+    else
+      UI.important(
+        "Skipping App Store review submission for #{target_version} because version " \
+        "#{review_blocker.version_string} is already #{review_blocker.app_store_state}."
+      )
+    end
+
     gym(
       project: "Boxing Timer.xcodeproj",
       scheme: "Boxing Timer",
@@ -92,12 +126,14 @@ platform :ios do
 
     upload_to_app_store(
       api_key: key,
-      submit_for_review: true,
-      automatic_release: true,
+      app_version: target_version,
+      submit_for_review: should_submit_for_review,
+      automatic_release: should_submit_for_review,
       force: true,
       skip_screenshots: true,
       overwrite_screenshots: false,
       skip_metadata: false,
+      version_check_wait_retry_limit: 10,
       primary_category: "HEALTH_AND_FITNESS",
       secondary_category: "SPORTS",
       precheck_include_in_app_purchases: false,

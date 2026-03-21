@@ -98,6 +98,10 @@ jobs:
           ISSUER_ID  = ENV["ASC_ISSUER_ID"]
           KEY_FILE   = File.join(Dir.home, "asc-keys/AuthKey_#{KEY_ID}.p8")
           BUNDLE_ID  = "john.Boxing-Timer"
+          PROJECT    = File.expand_path("Boxing Timer.xcodeproj/project.pbxproj")
+          TARGET_VERSION = File.read(PROJECT)[/MARKETING_VERSION = ([^;]+);/, 1]&.strip
+
+          abort("Could not read MARKETING_VERSION from #{PROJECT}") if TARGET_VERSION.nil? || TARGET_VERSION.empty?
 
           token = Spaceship::ConnectAPI::Token.create(
             key_id: KEY_ID, issuer_id: ISSUER_ID,
@@ -106,13 +110,32 @@ jobs:
           Spaceship::ConnectAPI.token = token
 
           app     = Spaceship::ConnectAPI::App.find(BUNDLE_ID)
-          version = app.get_edit_app_store_version(platform: "IOS")
+          versions = app.get_app_store_versions(platform: "IOS")
+          editable_states = %w[PREPARE_FOR_SUBMISSION DEVELOPER_REJECTED REJECTED METADATA_REJECTED INVALID_BINARY]
+          version = versions.find { |candidate| candidate.version_string == TARGET_VERSION }
+          editable = versions.find { |candidate| editable_states.include?(candidate.app_store_state) }
+
+          if version.nil? && editable
+            if editable.version_string != TARGET_VERSION
+              editable.update(attributes: { versionString: TARGET_VERSION })
+              puts "Updated editable version from #{editable.version_string} to #{TARGET_VERSION}"
+            end
+          elsif version.nil?
+            Spaceship::ConnectAPI.post_app_store_version(
+              app_id: app.id,
+              attributes: { versionString: TARGET_VERSION, platform: "IOS" }
+            )
+            puts "Created editable version #{TARGET_VERSION}"
+          end
+
+          version = app.get_app_store_versions(platform: "IOS").find { |candidate| candidate.version_string == TARGET_VERSION }
           if version.nil?
-            puts "No editable App Store version found; skipping ASC pre-submission patch."
+            puts "Could not find target version #{TARGET_VERSION} after preparation; skipping ASC pre-submission patch."
             exit 0
           end
+
           vid     = version.id
-          puts "Version: #{version.version_string} (#{vid})"
+          puts "Version: #{version.version_string} (#{version.app_store_state}, #{vid})"
 
           ec_key = OpenSSL::PKey.read(File.read(KEY_FILE))
           bearer = JWT.encode(
