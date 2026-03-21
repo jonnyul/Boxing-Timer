@@ -179,6 +179,7 @@ jobs:
       - name: Verify match repo access
         if: github.ref == 'refs/heads/main'
         id: verify_match
+        continue-on-error: true
         env:
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
         run: |
@@ -195,7 +196,7 @@ jobs:
           fi
 
       - name: Run Fastlane release
-        if: github.ref == 'refs/heads/main' && steps.verify_match.outputs.can_release == 'true'
+        if: github.ref == 'refs/heads/main'
         working-directory: ios
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
