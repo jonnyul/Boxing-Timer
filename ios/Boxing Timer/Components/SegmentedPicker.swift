@@ -21,7 +21,7 @@ struct SegmentedPicker<T: Hashable>: View {
                 }
                 .buttonStyle(
                     PressFeedbackButtonStyle(
-                        cornerRadius: 10,
+                        cornerRadius: AppDesign.Radius.ten,
                         normalBackground: selection == option ? .appCyan : .clear,
                         pressedBackground: selection == option ? .appCyan : .clear,
                         normalForeground: selection == option ? .appBackgroundDeep : .appTextSecondary,
@@ -32,9 +32,9 @@ struct SegmentedPicker<T: Hashable>: View {
         }
         .padding(4)
         .background(Color.appBackgroundDeep)
-        .cornerRadius(12)
+        .cornerRadius(AppDesign.Radius.ten)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
     }

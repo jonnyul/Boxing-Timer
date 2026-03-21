@@ -53,9 +53,12 @@ struct TimerView: View {
                 }
                 .padding(.bottom, 20)
                 HStack(spacing: 12) {
-                    timerInfoCard(title: "ROUNDS", value: "\(timerVM.currentRound)/\(timerVM.settings.numberOfRounds)", icon: "repeat")
-                    timerInfoCard(title: "WORK", value: timerVM.settings.roundDuration.mmss, icon: "flame.fill")
-                    timerInfoCard(title: "REST", value: timerVM.settings.breakDuration.mmss, icon: "pause.fill")
+                    TimerInfoCard(title: "ROUNDS", value: "\(timerVM.currentRound)/\(timerVM.settings.numberOfRounds)", icon: "repeat", iconColor: .green)
+                        .frame(maxWidth: .infinity)
+                    TimerInfoCard(title: "WORK", value: timerVM.settings.roundDuration.mmss, icon: "flame.fill", iconColor: .orange)
+                        .frame(maxWidth: .infinity)
+                    TimerInfoCard(title: "REST", value: timerVM.settings.breakDuration.mmss, icon: "pause.fill", iconColor: .blue)
+                        .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal, 20)
 
@@ -110,35 +113,6 @@ struct TimerView: View {
         }
     }
 
-    private func timerInfoCard(title: String, value: String, icon: String) -> some View {
-        VStack(spacing: 6) {
-            IconBadge(systemName: icon, color: iconColor(for: icon))
-            Text(value)
-                .font(.system(size: 18, weight: .bold, design: .monospaced))
-                .foregroundColor(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-            Text(title)
-                .labelUppercase(size: 8)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(AppDesign.Radius.card)
-        .overlay(
-            RoundedRectangle(cornerRadius: AppDesign.Radius.card)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
-    }
-
-    private func iconColor(for icon: String) -> Color {
-        switch icon {
-        case "repeat": .green
-        case "flame.fill": .orange
-        case "pause.fill": .blue
-        default: .appCyan
-        }
-    }
 }
 
 struct SegmentedRoundProgressBar: View {
@@ -186,7 +160,7 @@ struct SegmentedRoundProgressBar: View {
     @ViewBuilder
     private func roundBar(for round: Int, barWidth: CGFloat) -> some View {
         ZStack(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 4)
+            RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                 .fill(Color.white.opacity(0.1))
 
             if isCompleted(round: round) {
@@ -198,7 +172,7 @@ struct SegmentedRoundProgressBar: View {
             }
         }
         .frame(width: barWidth, height: barHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .clipShape(RoundedRectangle(cornerRadius: AppDesign.Radius.ten))
     }
 
     private func isCompleted(round: Int) -> Bool {

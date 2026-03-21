@@ -23,7 +23,7 @@ struct TimerSettingsEditor: View {
     @State private var activeEditor: EditableSetting?
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: AppDesign.Layout.rowSpacing) {
             SettingRow(icon: "repeat", iconColor: .green, pressedIconColor: .appGreenPressed, title: "Round", mode: .count(range: 1...50), value: $numberOfRounds, onChange: onChange, onEdit: {
                 activeEditor = .numberOfRounds
             }, onReset: {

@@ -43,7 +43,7 @@ struct PresetEditView: View {
             AppBackground()
 
             ScrollView {
-                VStack(spacing: 12) {
+                VStack(spacing: AppDesign.Layout.rowSpacing) {
                     HStack(spacing: 12) {
                         Button {
                             dismiss()
@@ -52,14 +52,17 @@ struct PresetEditView: View {
                             }
                         } label: {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 20, weight: .bold))
+                                .font(.system(size: AppDesign.ActionButton.iconSize, weight: .bold))
                                 .foregroundColor(.white)
-                                .frame(width: 44, height: 44)
+                                .padding(AppDesign.Control.padding)
                         }
-                        .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: Color.white.opacity(0.08), pressedBackground: Color.white.opacity(0.15)))
+                        .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: Color.white.opacity(0.08), pressedBackground: Color.white.opacity(0.15)))
 
                         Text("PRESETS").foregroundColor(.appOrange)
-                            .aggressiveHeading(size: 32)
+                            .aggressiveHeading(size: AppDesign.Typography.pageTitleSize)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.3)
+                            .padding(.bottom, AppDesign.Layout.titleBottomTrim)
 
                         Spacer()
                     }
@@ -70,9 +73,9 @@ struct PresetEditView: View {
                         .padding(.horizontal, 16)
                         .frame(height: 44)
                         .background(Color.white.opacity(0.05))
-                        .cornerRadius(12)
+                        .cornerRadius(AppDesign.Radius.ten)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12)
+                            RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
                         )
 
@@ -86,7 +89,7 @@ struct PresetEditView: View {
                         )
 
                         HStack(spacing: 12) {
-                            HStack(spacing: 8) {
+                            HStack(spacing: 6) {
                                 Image(systemName: "clock.fill")
                                     .font(.system(size: AppDesign.WorkoutInfo.iconSize))
                                     .foregroundColor(.white)
@@ -94,21 +97,20 @@ struct PresetEditView: View {
                                     .font(.system(size: AppDesign.WorkoutInfo.fontSize, weight: .bold, design: .monospaced))
                             }
                             .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: AppDesign.ActionButton.height)
+                            .padding(AppDesign.Control.padding)
                             .background(AppDesign.WorkoutInfo.background)
-                            .cornerRadius(AppDesign.ActionButton.radius)
+                            .cornerRadius(AppDesign.Radius.ten)
 
                             Button {
                                 savePreset()
                             } label: {
                                 Image(systemName: "checkmark")
-                                    .font(.system(size: 20, weight: .bold))
+                                    .font(.system(size: 23, weight: .bold))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
-                                    .frame(height: 44)
+                                    .padding(AppDesign.Control.padding)
                             }
-                            .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
+                            .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
                             .disabled(trimmedName.isEmpty)
                             .opacity(trimmedName.isEmpty ? 0.5 : 1)
                         }

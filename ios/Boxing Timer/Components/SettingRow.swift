@@ -21,15 +21,18 @@ struct SettingRow: View {
             Button {
                 onReset?()
             } label: {
-                IconBadge(systemName: icon, color: iconColor)
+                IconBadge(
+                    systemName: icon,
+                    color: iconColor,
+                    size: AppDesign.Control.iconSize + (AppDesign.Control.padding * 2),
+                    iconSize: AppDesign.Control.iconSize
+                )
             }
-            .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: .clear, pressedBackground: .clear))
+            .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: .clear, pressedBackground: .clear))
 
             Text(title)
-                .font(.system(size: 15, weight: .semibold))
-                .italic()
+                .rowTitle()
                 .foregroundColor(.white)
-                .textCase(.uppercase)
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -41,17 +44,16 @@ struct SettingRow: View {
                 } label: {
                     HStack(spacing: 6) {
                         Text(displayText)
-                            .font(.system(size: 20, weight: .bold, design: .monospaced))
+                            .font(.system(size: AppDesign.Typography.controlValueSize, weight: .bold, design: .monospaced))
                             .foregroundColor(iconColor)
                             .fixedSize()
                         Image(systemName: "square.and.pencil")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundColor(iconColor.opacity(onEdit == nil ? 0.35 : 0.8))
                     }
-                    .padding(.horizontal, 10)
-                    .frame(height: 44)
+                    .padding(AppDesign.Control.padding)
                 }
-                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 10, normalBackground: Color.white.opacity(0.04), pressedBackground: Color.white.opacity(0.04)))
+                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: Color.white.opacity(0.04), pressedBackground: Color.white.opacity(0.04)))
                 .disabled(onEdit == nil)
 
                 Button {
@@ -60,12 +62,11 @@ struct SettingRow: View {
                     onChange()
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.title2)
+                        .font(.system(size: AppDesign.Control.iconSize, weight: .bold))
                         .foregroundColor(canIncrement ? iconColor : iconColor.opacity(0.3))
-                        .padding(.horizontal, 8)
-                        .frame(height: 44)
+                        .padding(AppDesign.Control.padding)
                 }
-                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 10, normalBackground: Color.white.opacity(0.04), pressedBackground: Color.white.opacity(0.04)))
+                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: Color.white.opacity(0.04), pressedBackground: Color.white.opacity(0.04)))
 
                 Button {
                     guard canDecrement else { return }
@@ -73,12 +74,11 @@ struct SettingRow: View {
                     onChange()
                 } label: {
                     Image(systemName: "minus.circle.fill")
-                        .font(.title2)
+                        .font(.system(size: AppDesign.Control.iconSize, weight: .bold))
                         .foregroundColor(canDecrement ? iconColor : iconColor.opacity(0.3))
-                        .padding(.horizontal, 8)
-                        .frame(height: 44)
+                        .padding(AppDesign.Control.padding)
                 }
-                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 10, normalBackground: Color.white.opacity(0.04), pressedBackground: Color.white.opacity(0.04)))
+                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: Color.white.opacity(0.04), pressedBackground: Color.white.opacity(0.04)))
             }
         }
         .cardStyle(padding: 16)

@@ -35,6 +35,20 @@ Defined in `ColorExtension.swift`.
 | Card border | `white @ 8%` | `RoundedRectangle` overlay stroke |
 | Card background | `white @ 5%` | Card fill |
 
+## Typography Scale
+
+Defined in `AppDesign.Typography`. Each level doubles the previous.
+
+| Token | Size | Usage |
+|-------|------|-------|
+| `rowTitleSize` | 15pt | Base: SettingRow titles, Privacy Policy text |
+| `controlValueSize` | 20pt | Value readouts in SettingRow controls and preset stat cards |
+| `cardTitleSize` | 30pt | Preset card name (`.cardTitle()`) — semibold, uppercase, NOT italic |
+| `statNumberSize` | 38pt | Stats summary numbers (SESSIONS, MINUTES, ROUNDS) — 1.25× card title |
+| `pageTitleSize` | 48pt | Page headings via `.aggressiveHeading(size: pageTitleSize)` — always add `.lineLimit(1).minimumScaleFactor(0.3)` directly on Text — 1.25× stat |
+
+Phase banner in TimerView uses 48pt — fixed, not part of this scale.
+
 ## Design Tokens (`AppDesign` enum in `DesignSystem.swift`)
 
 Single source of truth for all visual constants. Always pull from here instead of hardcoding.
@@ -54,15 +68,19 @@ Single source of truth for all visual constants. Always pull from here instead o
 `Card.background = white/5`, `Card.border = white/8`, `Card.radius = 16pt`. Use `.cardStyle(padding:)` modifier.
 
 ### Controls (inline, inside setting rows)
-`Control.height = 44pt`, `Control.radius = 10pt`, `Control.background = white/4%`
+`Control.radius = 10pt`, `Control.background = white/4%`, `Control.padding = 8pt`
+`Control.iconSize = controlValueSize` (20pt)
+**Sizing**: all control buttons (value box, +/−, action buttons, WorkoutInfo block) use `.padding(AppDesign.Control.padding)` — no `frame(height:)`. This keeps top/bottom equal to left/right padding.
 
 ### Action Buttons
 Full-width icon-only buttons: play, reset, plus, checkmark, back.
-`ActionButton.height = 44pt`, `ActionButton.radius = 12pt`
+`ActionButton.radius = 12pt`. Height is content-driven via `.padding(.vertical, AppDesign.Control.padding)` — **do not** use `frame(height: 44)`.
+`ActionButton.iconSize = controlValueSize` (20pt) for symbol glyphs.
 
 ### Workout Info Block
-Total workout time display in HomeView header and PresetEditView.
-`WorkoutInfo.height = 44pt`, `WorkoutInfo.radius = 12pt`, `WorkoutInfo.iconSize = 14pt`, `WorkoutInfo.fontSize = 18pt`, `WorkoutInfo.background = #5DA9FF @ 15%`
+Total workout time — shown in HomeView header, PresetCard top-left, PresetEditView bottom row.
+`WorkoutInfo.iconSize = 14pt`, `WorkoutInfo.fontSize = Typography.controlValueSize` (matches timer rectangle values), `WorkoutInfo.background = #5DA9FF @ 15%`
+Padding: `.padding(AppDesign.Control.padding)` — no fixed frame height.
 
 ### Semantic Icons
 These SF Symbol names are fixed across all screens. Always use the matching color.
@@ -86,9 +104,11 @@ These SF Symbol names are fixed across all screens. Always use the matching colo
 
 | Modifier | Font | Usage |
 |----------|------|-------|
-| `.aggressiveHeading(size:)` | Black, italic, uppercase, -0.5 tracking | Page titles (32pt), phase banner (48pt) |
+| `.aggressiveHeading(size:)` | Black, italic, uppercase, -0.5 tracking | Page headings (`pageTitleSize` = 120pt + `minimumScaleFactor(0.3)`), phase banner (48pt — do not change) |
 | `.labelUppercase(size:)` | Heavy, uppercase, +2 tracking, secondary color | Section labels, card subtitles, preset stats |
 | `.timerDisplay(size:)` | Black, monospaced, -2 tracking, monospacedDigit, fixedSize(vertical) | Main countdown timer (96pt) |
+| `.rowTitle()` | `rowTitleSize` = 15pt semibold italic uppercase | SettingRow titles, Privacy Policy — base of the type scale |
+| `.cardTitle()` | `cardTitleSize` = 30pt semibold italic uppercase (2× rowTitle) | Preset card name |
 
 **`minimumScaleFactor` must be applied directly to `Text`, not through a `ViewModifier` wrapper** — the scaling never reaches the text renderer when wrapped.
 
@@ -96,7 +116,8 @@ These SF Symbol names are fixed across all screens. Always use the matching colo
 
 - Screen top padding: 20pt (`.padding(.top, 20)`)
 - Screen horizontal/bottom padding: 16pt (`.padding([.horizontal, .bottom])`)
-- VStack spacing between sections: 12pt throughout all tabs
+- VStack spacing between sections: `AppDesign.Layout.rowSpacing` (12pt) throughout all tabs
+- **`Layout.titleBottomTrim`**: negative bottom padding (e.g. `-10pt`) on **page titles** and on the **Home total-workout pill** so the visual gap to the next row matches row-to-row spacing. **Do not** put negative padding on small square header buttons — `PressFeedbackButtonStyle` uses `clipShape` and will clip the label. Presets `+`: use `HStack(alignment: .bottom)` with the title, and a fixed `frame(width:height:)` square (`ActionButton.height` × `ActionButton.height`) for the icon — no trim on the button.
 - Card internal padding: 16pt (`.cardStyle(padding: 16)`)
 - All SettingRow titles: uppercase, centered, `lineLimit(2)`, `minimumScaleFactor(0.8)`
 
@@ -114,6 +135,7 @@ PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: .appOrange, pressed
 // Back (ghost)
 PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: Color.white.opacity(0.08), pressedBackground: Color.white.opacity(0.15))
 ```
+Back/plus/check/play/reset icon glyphs should use `AppDesign.Typography.controlValueSize` with `.padding(AppDesign.Control.padding)` unless a screen-specific exception is documented.
 
 ### Chunky Buttons (text label, full-width)
 Used in TimerView (PAUSE, RESUME, STOP).
@@ -144,44 +166,41 @@ SettingRow(icon: "flame.fill", iconColor: .orange, title: "ROUND LENGTH", mode: 
 - Title is uppercase, 15pt semibold italic white, centered in available space
 - Tapping the icon badge resets that field to its default value
 - Tapping the value chip opens `NumericSettingEditorSheet`
-- `+` / `−` apply the configured step immediately
+- `+` / `−` apply the configured step immediately — SF Symbols `plus.circle.fill` / `minus.circle.fill` use `.font(.system(size: AppDesign.Typography.controlValueSize, weight: .bold))` and `.padding(AppDesign.Control.padding)` to match value-chip text size and insets.
 
 ### NumericSettingEditorSheet
 Custom keypad for direct numeric entry. Fixed `height(420)` detent.
 - Duration values render as `MM:SS`
-- Keypad buttons: 44pt tall (`ActionButton.height`)
-- Apply button: checkmark icon (not text), 44pt, uses the active setting's color
+- Keypad buttons: 44pt tall (`ActionButton.height`). Digit/backspace symbols use `controlValueSize` and `.padding(AppDesign.Control.padding)`.
+- Apply button: checkmark icon (not text), full-width, uses `controlValueSize` + `.padding(AppDesign.Control.padding)` and the active setting's color.
 - Invalid entry: digit boxes flash red and shake; no change committed
 
 ### IconBadge
 ```swift
 IconBadge(systemName: "flame.fill", color: .orange)
 ```
-44×44pt, colored background at 15% opacity, 12pt corner radius.
+Default is 44×44pt, colored background at 15% opacity, 12pt corner radius. For SettingRow left icons, pass explicit `size` and `iconSize` so icon glyph uses `controlValueSize` with effective insets matching `Control.padding`.
+Use the same explicit `size`/`iconSize` pattern for the Settings Privacy Policy icon badge.
 
 ### Workout Info Block
-Shown top-right of HomeView header and inside PresetEditView bottom row.
+Shown top-right of HomeView header, PresetCard top-left, and PresetEditView bottom row. On HomeView, apply `.padding(.bottom, AppDesign.Layout.titleBottomTrim)` to the pill so spacing to `TimerSettingsEditor` matches SettingRow gaps.
 ```swift
 HStack(spacing: 6) {
     Image(systemName: "clock.fill").font(.system(size: AppDesign.WorkoutInfo.iconSize))
     Text(totalSeconds.mmss).font(.system(size: AppDesign.WorkoutInfo.fontSize, weight: .bold, design: .monospaced))
 }
 .foregroundColor(.white)
-.padding(.horizontal, 12)
-.frame(height: AppDesign.ActionButton.height)
+.padding(AppDesign.Control.padding)
 .background(AppDesign.WorkoutInfo.background)
 .cornerRadius(AppDesign.ActionButton.radius)
 ```
 
 ### PresetCard
 Card in PresetsView. Internal padding: 16pt (`AppDesign.Spacing.lg`).
-- **Top-left**: `clock.fill` (11pt heavy, orange) + total workout time in MM:SS
-- **Preset name**: 20pt bold uppercase white
-- **Stats row**: Three icon+value pairs using `labelUppercase(size: 8)`:
-  - `repeat` (green) + round count + "ROUNDS"
-  - `flame.fill` (orange) + round duration MM:SS
-  - `pause.fill` (blue) + break duration MM:SS
-- **Play button**: icon-only (`play.fill`), 44pt, orange, full-width
+- **Top row**: Total workout time pill (same as Workout Info Block) + `Spacer` + ellipsis `Menu` (edit/delete).
+- **Preset name**: `.cardTitle()` — `cardTitleSize`, semibold, uppercase. `.lineLimit(1).minimumScaleFactor(0.5)` on `Text`.
+- **Stats row** (under title): Single `HStack` with three `presetStatCard` pills — **icon + value only** (no "ROUNDS" / "WORK" / "REST" text). `repeat` (green) + round count, `flame.fill` (orange) + round duration MM:SS, `pause.fill` (blue) + break duration MM:SS. Each pill: `.padding(AppDesign.Control.padding)`, `.frame(maxWidth: .infinity)`, `Radius.button`, value font `controlValueSize`. Do NOT use `TimerInfoCard` here.
+- **Play button**: icon-only (`play.fill`), orange, full-width, icon uses `controlValueSize` and `.padding(AppDesign.Control.padding)` (same as SettingRow value controls).
 
 ### Timer Info Cards (TimerView)
 The three cards in the active timer screen (ROUNDS, WORK, REST):
@@ -191,6 +210,7 @@ timerInfoCard(title: "WORK",   value: ...,   icon: "flame.fill")
 timerInfoCard(title: "REST",   value: ...,   icon: "pause.fill")
 ```
 Pattern: `IconBadge` + bold monospaced value + `labelUppercase(size: 8)` title. Cards use `cornerRadius(AppDesign.Radius.card)`.
+**Padding**: `.padding(16)` — uniform 16pt all sides. Matches `presetStatCard` in PresetCard.
 
 ## Navigation
 

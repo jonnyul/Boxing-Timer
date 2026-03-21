@@ -19,10 +19,13 @@ struct HomeView: View {
                         .environmentObject(timerVM)
                 } else {
                     ScrollView {
-                        VStack(spacing: 12) {
+                        VStack(spacing: AppDesign.Layout.rowSpacing) {
                             HStack(spacing: 12) {
                                 Text("TIMER").foregroundColor(.appCyan)
-                                    .aggressiveHeading(size: 32)
+                                    .aggressiveHeading(size: AppDesign.Typography.pageTitleSize)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.3)
+                                    .padding(.bottom, AppDesign.Layout.titleBottomTrim)
 
                                 Spacer()
 
@@ -33,10 +36,10 @@ struct HomeView: View {
                                         .font(.system(size: AppDesign.WorkoutInfo.fontSize, weight: .bold, design: .monospaced))
                                 }
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 12)
-                                .frame(height: AppDesign.ActionButton.height)
+                                .padding(AppDesign.Control.padding)
                                 .background(AppDesign.WorkoutInfo.background)
-                                .cornerRadius(AppDesign.ActionButton.radius)
+                                .cornerRadius(AppDesign.Radius.ten)
+                                .padding(.bottom, AppDesign.Layout.titleBottomTrim)
                             }
 
                             TimerSettingsEditor(
@@ -55,23 +58,23 @@ struct HomeView: View {
                                     timerVM.start()
                                 } label: {
                                     Image(systemName: "play.fill")
-                                        .font(.system(size: 20, weight: .bold))
+                                        .font(.system(size: AppDesign.ActionButton.iconSize, weight: .bold))
                                         .foregroundColor(Color(hex: "1C2A4A"))
                                         .frame(maxWidth: .infinity)
-                                        .frame(height: 44)
+                                        .padding(AppDesign.Control.padding)
                                 }
-                                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: .appCyan, pressedBackground: .appCyanPressed))
+                                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: .appCyan, pressedBackground: .appCyanPressed))
 
                                 Button {
                                     timerVM.updateSettings(TimerSettings())
                                 } label: {
                                     Image(systemName: "arrow.2.circlepath")
-                                        .font(.system(size: 20, weight: .bold))
+                                        .font(.system(size: AppDesign.ActionButton.iconSize, weight: .bold))
                                         .foregroundColor(.white)
                                         .frame(maxWidth: .infinity)
-                                        .frame(height: 44)
+                                        .padding(AppDesign.Control.padding)
                                 }
-                                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: Color.white.opacity(0.08), pressedBackground: Color.white.opacity(0.15)))
+                                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: Color.white.opacity(0.08), pressedBackground: Color.white.opacity(0.15)))
 
                                 Button {
                                     navigationState.presetsNewPresetSettings = timerVM.settings
@@ -80,12 +83,12 @@ struct HomeView: View {
                                     navigationState.selectedTab = .presets
                                 } label: {
                                     Image(systemName: "plus")
-                                        .font(.system(size: 20, weight: .bold))
+                                        .font(.system(size: 23, weight: .bold))
                                         .foregroundColor(.white)
                                         .frame(maxWidth: .infinity)
-                                        .frame(height: 44)
+                                        .padding(AppDesign.Control.padding)
                                 }
-                                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
+                                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
                             }
                         }
                         .padding([.horizontal, .bottom])

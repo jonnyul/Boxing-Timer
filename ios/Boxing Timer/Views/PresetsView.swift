@@ -13,13 +13,16 @@ struct PresetsView: View {
                 AppBackground()
 
                 ScrollView {
-                    VStack(spacing: 12) {
-                        HStack {
+                    VStack(spacing: AppDesign.Layout.rowSpacing) {
+                        HStack(alignment: .bottom) {
                             Text("PRESETS")
-                                .aggressiveHeading(size: 32)
+                                .aggressiveHeading(size: AppDesign.Typography.pageTitleSize)
                                 .foregroundColor(.appOrange)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.3)
+                                .padding(.bottom, AppDesign.Layout.titleBottomTrim)
 
-                            Spacer()
+                            Spacer(minLength: 0)
 
                             Button {
                                 navigationState.presetsNewPresetSettings = nil
@@ -27,16 +30,16 @@ struct PresetsView: View {
                                 navigationState.presetsPath = [.add]
                             } label: {
                                 Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .bold))
+                                    .font(.system(size: 23, weight: .bold))
                                     .foregroundColor(.white)
-                                    .frame(width: 44, height: 44)
+                                    .padding(AppDesign.Control.padding)
                             }
-                            .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
+                            .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
                         }
                         .padding(.top, 20)
 
                         if !presetsVM.presets.isEmpty {
-                            VStack(spacing: 12) {
+                            VStack(spacing: AppDesign.Layout.rowSpacing) {
                                 ForEach(presetsVM.presets) { preset in
                                     PresetCard(
                                         preset: preset,
@@ -103,16 +106,18 @@ struct PresetCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: AppDesign.Layout.rowSpacing) {
                 HStack {
-                    HStack(spacing: 4) {
+                    HStack(spacing: 6) {
                         Image(systemName: "clock.fill")
-                            .font(.system(size: 11, weight: .heavy))
+                            .font(.system(size: AppDesign.WorkoutInfo.iconSize))
                         Text(preset.settings.totalSeconds.mmss)
-                            .font(.system(size: 11, weight: .heavy))
-                            .tracking(1)
+                            .font(.system(size: AppDesign.WorkoutInfo.fontSize, weight: .bold, design: .monospaced))
                     }
-                    .foregroundColor(.appOrange)
+                    .foregroundColor(.white)
+                    .padding(AppDesign.Control.padding)
+                    .background(AppDesign.WorkoutInfo.background)
+                    .cornerRadius(AppDesign.Radius.ten)
 
                     Spacer()
 
@@ -125,55 +130,59 @@ struct PresetCard: View {
                             .foregroundColor(.white.opacity(0.5))
                             .frame(width: 32, height: 32)
                     }
-                    .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 10, normalBackground: .clear, pressedBackground: .clear, normalForeground: .white.opacity(0.5), pressedForeground: .white.opacity(0.5)))
+                    .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: .clear, pressedBackground: .clear, normalForeground: .white.opacity(0.5), pressedForeground: .white.opacity(0.5)))
                 }
 
                 Text(preset.name)
-                    .font(.system(size: 20, weight: .bold))
-                    .textCase(.uppercase)
+                    .cardTitle()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                     .foregroundColor(.white)
 
                 HStack(spacing: 12) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "repeat")
-                            .font(.system(size: 8, weight: .heavy))
-                            .foregroundColor(.green)
-                        Text("\(preset.settings.numberOfRounds) ROUNDS")
-                            .labelUppercase(size: 8)
-                    }
-                    HStack(spacing: 4) {
-                        Image(systemName: "flame.fill")
-                            .font(.system(size: 8, weight: .heavy))
-                            .foregroundColor(.orange)
-                        Text(preset.settings.roundDuration.mmss)
-                            .labelUppercase(size: 8)
-                    }
-                    HStack(spacing: 4) {
-                        Image(systemName: "pause.fill")
-                            .font(.system(size: 8, weight: .heavy))
-                            .foregroundColor(.blue)
-                        Text(preset.settings.breakDuration.mmss)
-                            .labelUppercase(size: 8)
-                    }
+                    presetStatCard(icon: "repeat", color: .green, value: "\(preset.settings.numberOfRounds)")
+                    presetStatCard(icon: "flame.fill", color: .orange, value: preset.settings.roundDuration.mmss)
+                    presetStatCard(icon: "pause.fill", color: .blue, value: preset.settings.breakDuration.mmss)
                 }
 
                 Button {
                     onStart()
                 } label: {
                     Image(systemName: "play.fill")
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.system(size: AppDesign.ActionButton.iconSize, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .frame(height: AppDesign.ActionButton.height)
+                        .padding(AppDesign.Control.padding)
                 }
-                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.ActionButton.radius, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
+                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
             }
             .padding(AppDesign.Spacing.lg)
         }
         .background(Color.white.opacity(0.05))
-        .cornerRadius(16)
+        .cornerRadius(AppDesign.Radius.ten)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+    }
+
+    private func presetStatCard(icon: String, color: Color, value: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(color)
+            Text(value)
+                .font(.system(size: AppDesign.Typography.controlValueSize, weight: .bold, design: .monospaced))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        }
+        .padding(AppDesign.Control.padding)
+        .frame(maxWidth: .infinity)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(AppDesign.Radius.ten)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
     }

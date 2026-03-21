@@ -9,17 +9,25 @@ struct OptionsView: View {
                 AppBackground()
 
                 ScrollView {
-                    VStack(spacing: 12) {
+                    VStack(spacing: AppDesign.Layout.rowSpacing) {
                         Text("SETTINGS").foregroundColor(.appTextSecondary)
-                            .aggressiveHeading(size: 32)
+                            .aggressiveHeading(size: AppDesign.Typography.pageTitleSize)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.3)
+                            .padding(.bottom, AppDesign.Layout.titleBottomTrim)
                             .frame(maxWidth: .infinity, alignment: .center)
 
                         NavigationLink(destination: PrivacyPolicyView()) {
                                 HStack(spacing: 12) {
-                                    IconBadge(systemName: "hand.raised.fill", color: .blue)
+                                    IconBadge(
+                                        systemName: "hand.raised.fill",
+                                        color: .blue,
+                                        size: AppDesign.Control.iconSize + (AppDesign.Control.padding * 2),
+                                        iconSize: AppDesign.Control.iconSize
+                                    )
 
                                     Text("Privacy Policy")
-                                        .font(.subheadline.weight(.semibold))
+                                        .rowTitle()
                                         .foregroundColor(.white)
 
                                     Spacer()
@@ -30,9 +38,9 @@ struct OptionsView: View {
                                 }
                                 .padding(16)
                                 .background(Color.white.opacity(0.05))
-                                .cornerRadius(16)
+                                .cornerRadius(AppDesign.Radius.ten)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
+                                    RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                                         .stroke(Color.white.opacity(0.08), lineWidth: 1)
                                 )
                             }

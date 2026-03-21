@@ -58,12 +58,12 @@ struct NumericSettingEditorSheet: View {
                     applyChanges()
                 } label: {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.system(size: AppDesign.ActionButton.iconSize, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 44)
+                        .padding(AppDesign.Control.padding)
                 }
-                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: iconColor, pressedBackground: pressedIconColor))
+                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: iconColor, pressedBackground: pressedIconColor))
                 .padding(.horizontal, 20)
                 .padding(.bottom, 8)
                 .background(Color.appBackgroundDeep)
@@ -97,11 +97,11 @@ struct NumericSettingEditorSheet: View {
                                 .foregroundColor(.white)
                                 .frame(width: digitBoxWidth, height: digitBoxHeight)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
+                                    RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                                         .stroke(borderColor(for: index), lineWidth: 2)
                                 )
                         }
-                        .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 14, normalBackground: backgroundColor(for: index)))
+                        .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: backgroundColor(for: index)))
                     case .separator(let separator):
                         Text(separator)
                             .font(.system(size: 34, weight: .black, design: .monospaced))
@@ -141,20 +141,21 @@ struct NumericSettingEditorSheet: View {
                 switch item {
                 case .digit(let digit):
                     Text("\(digit)")
-                        .font(.system(size: 28, weight: .black, design: .monospaced))
+                        .font(.system(size: AppDesign.Control.iconSize, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                 case .backspace:
                     Image(systemName: "delete.left.fill")
-                        .font(.system(size: 22, weight: .bold))
+                        .font(.system(size: AppDesign.Control.iconSize, weight: .bold))
                         .foregroundColor(.appRed)
                 }
             }
             .frame(maxWidth: .infinity)
+            .padding(AppDesign.Control.padding)
             .frame(height: keypadButtonHeight)
         }
         .buttonStyle(
             NoFeedbackButtonStyle(
-                cornerRadius: 16,
+                cornerRadius: AppDesign.Radius.ten,
                 backgroundColor: item == .backspace ? Color.appRed.opacity(0.2) : Color.white.opacity(0.08)
             )
         )

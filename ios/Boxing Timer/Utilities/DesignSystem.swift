@@ -5,13 +5,10 @@ import SwiftUI
 // When adding a new feature, pull values from here instead of hardcoding.
 enum AppDesign {
 
-    // MARK: Corner Radii
+    // MARK: Corner Radius
     enum Radius {
-        static let card: CGFloat = 16        // cards, sheet containers, chunky buttons
-        static let badge: CGFloat = 12       // icon badges, text fields, input rows
-        static let button: CGFloat = 10      // compact inline buttons (value box, +/-)
-        static let pill: CGFloat = 999       // fully-rounded pills (use on any height)
-        static let heatmap: CGFloat = 3      // contribution graph squares + legend swatches
+        static let three: CGFloat = 3
+        static let ten: CGFloat = 10
     }
 
     // MARK: Spacing
@@ -31,7 +28,6 @@ enum AppDesign {
         static let background = Color.white.opacity(0.05)
         static let border = Color.white.opacity(0.08)
         static let borderWidth: CGFloat = 1
-        static let radius: CGFloat = Radius.card
     }
 
     // MARK: Icon Badge
@@ -40,29 +36,28 @@ enum AppDesign {
         static let size: CGFloat = 44
         static let iconSize: CGFloat = 16
         static let backgroundOpacity: Double = 0.15
-        static let radius: CGFloat = Radius.badge
     }
 
     // MARK: Controls (inline buttons inside setting rows)
     enum Control {
-        static let height: CGFloat = 44      // value box, +/- buttons, icon badge
-        static let radius: CGFloat = Radius.button
+        static let height: CGFloat = 44      // kept for reference; prefer padding-based sizing
         static let background = Color.white.opacity(0.04)
+        static let padding: CGFloat = 8      // uniform padding all sides — use instead of frame(height:44)
+        static let iconSize: CGFloat = Typography.controlValueSize
     }
 
     // MARK: Action Buttons (full-width icon buttons: play, reset, plus, checkmark, back)
     // These are the standalone icon-only buttons used at the bottom of screens.
     enum ActionButton {
         static let height: CGFloat = 44       // matches Control.height
-        static let radius: CGFloat = Radius.badge  // 12pt
+        static let iconSize: CGFloat = Typography.controlValueSize
     }
 
     // MARK: Workout Info Block (total workout time display — home header + preset editor)
     enum WorkoutInfo {
         static let height: CGFloat = ActionButton.height
-        static let radius: CGFloat = ActionButton.radius
         static let iconSize: CGFloat = 14
-        static let fontSize: CGFloat = 18
+        static let fontSize: CGFloat = Typography.controlValueSize
         static let background = Color(hex: "5DA9FF").opacity(0.15)
     }
 
@@ -87,12 +82,16 @@ enum AppDesign {
         static let back      = "chevron.left"     // color: white (on ghost bg)
     }
 
-    // MARK: Typography (reference — use the .aggressiveHeading / .labelUppercase / .timerDisplay modifiers)
-    // Screen titles:  .aggressiveHeading(size: 32–48), two-color via Text concatenation
-    // Section labels: .labelUppercase(size: 10)
-    // Card body:      .system(size: 15, weight: .semibold), white, italic for setting row labels
-    // Value readout:  .system(size: 20, weight: .bold, design: .monospaced), iconColor
-    // Timer display:  .timerDisplay(size: 96)
+    // MARK: Typography
+    // Scale doubles at each level — use AppDesign.Typography constants everywhere.
+    // NOTE: minimumScaleFactor must be applied directly on Text, not inside a ViewModifier.
+    enum Typography {
+        static let rowTitleSize: CGFloat     = 15    // base: timer-page text, privacy policy, setting row labels
+        static let controlValueSize: CGFloat = 20    // value readout in SettingRow controls and preset stat cards
+        static let cardTitleSize: CGFloat  = 30    // preset card name (2× base)
+        static let statNumberSize: CGFloat = 38    // stats summary numbers (1.25× card title)
+        static let pageTitleSize: CGFloat  = 48    // TIMER / PRESETS / STATS / SETTINGS headings (1.25× stat)
+    }
 
     // MARK: Screen Layout
     enum Layout {
@@ -100,6 +99,7 @@ enum AppDesign {
         static let topPadding: CGFloat = Spacing.xl          // padding from safe-area top to first element
         static let sectionSpacing: CGFloat = Spacing.md      // VStack spacing between major sections
         static let rowSpacing: CGFloat = Spacing.md          // spacing between list rows (e.g. SettingRows)
+        static let titleBottomTrim: CGFloat = -10            // trims large heading line-box gap under page titles
     }
 }
 
@@ -114,6 +114,23 @@ struct AggressiveHeading: ViewModifier {
             .italic()
             .textCase(.uppercase)
             .tracking(-0.5)
+    }
+}
+
+struct RowTitleStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.system(size: AppDesign.Typography.rowTitleSize, weight: .semibold))
+            .italic()
+            .textCase(.uppercase)
+    }
+}
+
+struct CardTitleStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.system(size: AppDesign.Typography.cardTitleSize, weight: .semibold))
+            .textCase(.uppercase)
     }
 }
 
@@ -149,9 +166,9 @@ struct CardStyle: ViewModifier {
         content
             .padding(padding)
             .background(Color.white.opacity(0.05))
-            .cornerRadius(16)
+            .cornerRadius(AppDesign.Radius.ten)
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                     .stroke(Color.white.opacity(0.08), lineWidth: 1)
             )
     }
@@ -173,6 +190,14 @@ extension View {
     func cardStyle(padding: CGFloat = 20) -> some View {
         modifier(CardStyle(padding: padding))
     }
+
+    func rowTitle() -> some View {
+        modifier(RowTitleStyle())
+    }
+
+    func cardTitle() -> some View {
+        modifier(CardTitleStyle())
+    }
 }
 
 struct ChunkyButtonStyle: ButtonStyle {
@@ -192,7 +217,7 @@ struct ChunkyButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 20)
             .background(backgroundColor)
-            .cornerRadius(16)
+            .cornerRadius(AppDesign.Radius.ten)
     }
 
     private var backgroundColor: Color {
@@ -234,12 +259,12 @@ struct TintedChunkyButtonStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 20)
             .background(backgroundColor)
-            .cornerRadius(16)
+            .cornerRadius(AppDesign.Radius.ten)
     }
 }
 
 struct PressFeedbackButtonStyle: ButtonStyle {
-    var cornerRadius: CGFloat = 12
+    var cornerRadius: CGFloat = AppDesign.Radius.ten
     var normalBackground: Color? = nil
     var pressedBackground: Color? = nil
     var normalForeground: Color? = nil
@@ -266,7 +291,35 @@ struct IconBadge: View {
             .foregroundColor(color)
             .frame(width: size, height: size)
             .background(color.opacity(0.15))
-            .cornerRadius(size * 12 / 44)
+            .cornerRadius(AppDesign.Radius.ten)
+    }
+}
+
+// Shared info card used on the timer screen and preset cards — icon badge, monospaced value, uppercase label.
+struct TimerInfoCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let iconColor: Color
+
+    var body: some View {
+        VStack(spacing: 6) {
+            IconBadge(systemName: icon, color: iconColor)
+            Text(value)
+                .font(.system(size: 18, weight: .bold, design: .monospaced))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            Text(title)
+                .labelUppercase(size: 8)
+        }
+        .padding(16)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(AppDesign.Radius.ten)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
     }
 }
 
