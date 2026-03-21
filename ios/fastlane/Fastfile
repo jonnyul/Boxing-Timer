@@ -12,20 +12,11 @@ def marketing_version
   )
 end
 
-def blocking_review_version(app, target_version)
-  blocking_states = %w[
-    READY_FOR_REVIEW
-    WAITING_FOR_REVIEW
-    IN_REVIEW
-    PENDING_APPLE_RELEASE
-    PENDING_DEVELOPER_RELEASE
-  ]
+def active_review_submission(app)
+  platform = Spaceship::ConnectAPI::Platform::IOS
 
-  app.get_app_store_versions(
-    filter: { platform: Spaceship::ConnectAPI::Platform::IOS }
-  ).find do |version|
-    blocking_states.include?(version.app_store_state) && version.version_string != target_version
-  end
+  app.get_ready_review_submission(platform: platform) ||
+    app.get_in_progress_review_submission(platform: platform)
 end
 
 def api_key
@@ -99,15 +90,15 @@ platform :ios do
     )
 
     app = Spaceship::ConnectAPI::App.find(BUNDLE_ID)
-    review_blocker = blocking_review_version(app, target_version)
+    review_blocker = active_review_submission(app)
     should_submit_for_review = review_blocker.nil?
 
     if should_submit_for_review
       UI.message("Submitting version #{target_version} for review.")
     else
       UI.important(
-        "Skipping App Store review submission for #{target_version} because version " \
-        "#{review_blocker.version_string} is already #{review_blocker.app_store_state}."
+        "Skipping App Store review submission for #{target_version} because an App Store review " \
+        "submission is already active (#{review_blocker.state})."
       )
     end
 
