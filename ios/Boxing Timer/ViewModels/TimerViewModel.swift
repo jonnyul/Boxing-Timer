@@ -18,9 +18,17 @@ enum AppTab: Hashable {
     case settings
 }
 
+enum PresetsDestination: Hashable {
+    case add
+    case edit(UUID)
+}
+
 @MainActor
 final class AppNavigationState: ObservableObject {
     @Published var selectedTab: AppTab = .timer
+    @Published var presetsPath: [PresetsDestination] = []
+    @Published var presetsNewPresetSettings: TimerSettings? = nil
+    @Published var presetsReturnTab: AppTab = .presets
 }
 
 @MainActor

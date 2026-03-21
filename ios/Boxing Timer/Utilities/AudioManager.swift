@@ -8,22 +8,26 @@ final class AudioManager {
     private var keepAlivePlayer: AVAudioPlayer?
     private let keepAliveURL = FileManager.default.temporaryDirectory.appendingPathComponent("boxing-timer-silence.wav")
 
-    private init() {}
+    // Custom sound players — preloaded at init so first play has no latency.
+    private var roundStartPlayer: AVAudioPlayer?
+    private var roundEndNoticePlayer: AVAudioPlayer?
+
+    private init() {
+        roundStartPlayer = makePlayer(named: "round_start")
+        roundEndNoticePlayer = makePlayer(named: "round_end_notice")
+    }
 
     var isBackgroundPlaybackActive: Bool {
         keepAlivePlayer?.isPlaying == true
     }
 
-    private var bellsType: Int {
-        PersistenceManager.shared.loadSettings().bellsType
-    }
-
     func playRoundStart() {
-        playSystemSound(startBellSoundID(for: bellsType))
+        playCustom(roundStartPlayer)
     }
 
     func playRoundEnd() {
-        playSystemSound(endBellSoundID(for: bellsType))
+        // No custom file for round end yet — falls back to system sound.
+        playSystemSound(1014)
     }
 
     func playBreakStart() {
@@ -31,7 +35,7 @@ final class AudioManager {
     }
 
     func playNoticeWarning() {
-        playSystemSound(1103)
+        playCustom(roundEndNoticePlayer)
     }
 
     func playGetReady() {
@@ -45,10 +49,6 @@ final class AudioManager {
                 self?.playRoundEnd()
             }
         }
-    }
-
-    func playPreview(bellType: Int) {
-        playSystemSound(startBellSoundID(for: bellType))
     }
 
     func beginBackgroundPlayback() {
@@ -72,20 +72,19 @@ final class AudioManager {
         keepAlivePlayer = nil
     }
 
-    private func startBellSoundID(for bellType: Int) -> SystemSoundID {
-        switch bellType {
-        case 2: return 1016
-        case 3: return 1025
-        default: return 1013
+    private func makePlayer(named name: String) -> AVAudioPlayer? {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "wav") else {
+            print("AudioManager: missing \(name).wav in bundle")
+            return nil
         }
+        let player = try? AVAudioPlayer(contentsOf: url)
+        player?.prepareToPlay()
+        return player
     }
 
-    private func endBellSoundID(for bellType: Int) -> SystemSoundID {
-        switch bellType {
-        case 2: return 1017
-        case 3: return 1026
-        default: return 1014
-        }
+    private func playCustom(_ player: AVAudioPlayer?) {
+        player?.currentTime = 0
+        player?.play()
     }
 
     private func playSystemSound(_ soundID: SystemSoundID) {

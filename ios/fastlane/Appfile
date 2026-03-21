@@ -1,4 +1,4 @@
 app_identifier "john.Boxing-Timer"
-team_id "3LN6SHFTXK"
+team_id ENV["APPLE_TEAM_ID"] || "3LN6SHFTXK"
 
 # App Store Connect API key is used for auth — no Apple ID email needed

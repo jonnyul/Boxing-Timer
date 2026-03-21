@@ -9,20 +9,13 @@ struct StatsView: View {
                 AppBackground()
 
                 ScrollView {
-                    VStack(spacing: 24) {
-                        HStack {
-                            Spacer()
-                            VStack(alignment: .center, spacing: 4) {
-                                Text("TRAINING")
-                                    .aggressiveHeading(size: 32)
-                                    .foregroundColor(.white)
-                                Text("STATS")
-                                    .aggressiveHeading(size: 32)
-                                    .foregroundColor(.appStatsGreen)
-                            }
-                            Spacer()
-                        }
-                        .padding(.top, 20)
+                    VStack(spacing: AppDesign.Layout.rowSpacing) {
+                        Text("STATS").foregroundColor(.appStatsGreen)
+                            .aggressiveHeading(size: AppDesign.Typography.pageTitleSize)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.3)
+                            .padding(.bottom, AppDesign.Layout.titleBottomTrim)
+                            .frame(maxWidth: .infinity, alignment: .center)
 
                         HStack(spacing: 12) {
                             StatSummaryCard(title: "SESSIONS", value: "\(statsVM.totalWorkouts)", icon: "figure.boxing", iconColor: .orange)
@@ -38,7 +31,8 @@ struct StatsView: View {
                         }
                         .cardStyle()
                     }
-                    .padding()
+                    .padding([.horizontal, .bottom])
+                    .padding(.top, 20)
                 }
             }
             .navigationBarHidden(true)
@@ -62,18 +56,20 @@ struct StatSummaryCard: View {
                 .foregroundColor(iconColor)
 
             Text(value)
-                .font(.system(size: 28, weight: .black, design: .monospaced))
+                .font(.system(size: AppDesign.Typography.statNumberSize, weight: .black, design: .monospaced))
                 .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.4)
 
             Text(title)
-                .labelUppercase(size: 8)
+                .labelUppercase()
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
         .background(Color.white.opacity(0.05))
-        .cornerRadius(16)
+        .cornerRadius(AppDesign.Radius.ten)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
     }
@@ -111,7 +107,7 @@ struct ContributionHeatmap: View {
                     }
 
                     context.fill(
-                        Path(roundedRect: CGRect(x: x, y: y, width: size, height: size), cornerRadius: 3),
+                        Path(roundedRect: CGRect(x: x, y: y, width: size, height: size), cornerRadius: AppDesign.Radius.three),
                         with: .color(fillColor)
                     )
                 }
@@ -124,18 +120,16 @@ struct ContributionHeatmap: View {
             HStack(spacing: 4) {
                 Spacer()
                 Text("Less")
-                    .font(.system(size: max(9, squareSize * 0.8), weight: .medium))
-                    .foregroundColor(.appTextSecondary)
+                    .labelUppercase()
 
                 ForEach([0.0, 0.25, 0.5, 0.75, 1.0], id: \.self) { level in
-                    RoundedRectangle(cornerRadius: 2)
+                    RoundedRectangle(cornerRadius: AppDesign.Radius.three)
                         .fill(level == 0 ? Color.white.opacity(0.06) : Color.appStatsGreen.opacity(0.25 + level * 0.75))
                         .frame(width: squareSize, height: squareSize)
                 }
 
                 Text("More")
-                    .font(.system(size: max(9, squareSize * 0.8), weight: .medium))
-                    .foregroundColor(.appTextSecondary)
+                    .labelUppercase()
             }
             .padding(.top, 4)
         }

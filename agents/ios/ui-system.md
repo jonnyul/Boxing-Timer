@@ -6,67 +6,148 @@ Premium aggressive boxing. "UFC fight night meets Nike Training Club." Dark mode
 
 ## Per-Page Color Identity
 
-Each page has its own accent color used for the second word of the page title and its primary accent elements:
+Each page has its own accent color used for the page title and its primary accent elements. Titles are a single word in the page's accent color, 32pt aggressiveHeading, left-aligned:
 
-| Page | Title | Second word color | Notes |
-|------|-------|------------------|-------|
-| Home (Timer) | BOXING / TIMER | cyan | Timer countdown, resume button, and TIMER tab icon are all cyan |
-| Stats | TRAINING / STATS | green | Activity graph squares are also green |
-| Presets | WORKOUT / PRESETS | orange | Preset card accent bars and MIN text are all orange |
-| Settings | APP / SETTINGS | `appTextSecondary` (gray) | Muted — settings is a utility page |
+| Page | Title | Color | Notes |
+|------|-------|-------|-------|
+| Home (Timer) | TIMER | cyan | Left-aligned; total workout time block on top-right |
+| Stats | STATS | green | Activity graph squares are also green |
+| Presets | PRESETS | orange | Preset cards and icons are all orange |
+| Settings | SETTINGS | `appTextSecondary` (gray) | Muted — utility page |
+| Preset Edit | PRESETS | orange | Same title as Presets tab; back button on top-left |
 
-Tab bar icons: Timer=cyan, Presets=orange, Stats=green, Settings=gray.
+Tab bar icons: Timer=`clock.fill` (cyan), Presets=`slider.horizontal.3` (orange), Stats=`chart.bar.fill` (green), Settings=`gearshape.fill` (gray).
 
 ## Color Tokens
 
-Defined in `AppUI.swift` as static `Color` extensions for the app target, and duplicated locally inside `ios/Boxing Timer Live Activity/Boxing_TimerLiveActivity.swift` for the widget target.
+Defined in `ColorExtension.swift`.
 
 | Token | Hex | Usage |
 |-------|-----|-------|
 | `appBackground` | `#1C2A4A` | All screen backgrounds |
-| `appBackgroundDeep` | `#152039` | Tab bar, headers, cards in live activity |
-| `appCyan` | `#00F2FF` | Primary accent: values, timers, resume button, progress |
-| `appRed` | `#FF003D` | Round phase banner, stop button, danger actions |
-| `appOrange` | `#EC5B13` | Tab bar active tint, preset start buttons, progress fill |
-| `appGreen` | `#FFD700` | Done state (minimal use) |
-| `appTextSecondary` | `#94A3B8` | All secondary/label text |
+| `appBackgroundDeep` | `#152039` | Tab bar, headers, keypad sheet |
+| `appCyan` | `#00F2FF` | Primary accent: timers, resume button, TIMER title |
+| `appRed` | `#FF003D` | Round phase banner, stop button, danger |
+| `appOrange` | `#EC5B13` | Presets tab, preset cards, save/confirm actions |
+| `appGreen` | `#FFD700` | Done state |
+| `appStatsGreen` | `#30D158` | Stats page title and heatmap |
+| `appTextSecondary` | `#94A3B8` | Secondary/label text |
 | Card border | `white @ 8%` | `RoundedRectangle` overlay stroke |
 | Card background | `white @ 5%` | Card fill |
-| Divider | `white @ 5%` | Section separators |
+
+## Typography Scale
+
+Defined in `AppDesign.Typography`. Each level doubles the previous.
+
+| Token | Size | Usage |
+|-------|------|-------|
+| `rowTitleSize` | 15pt | Base: SettingRow titles, Privacy Policy text |
+| `controlValueSize` | 20pt | Value readouts in SettingRow controls and preset stat cards |
+| `cardTitleSize` | 30pt | Preset card name (`.cardTitle()`) — semibold, uppercase, NOT italic |
+| `statNumberSize` | 38pt | Stats summary numbers (SESSIONS, MINUTES, ROUNDS) — 1.25× card title |
+| `pageTitleSize` | 48pt | Page headings via `.aggressiveHeading(size: pageTitleSize)` — always add `.lineLimit(1).minimumScaleFactor(0.3)` directly on Text — 1.25× stat |
+
+Phase banner in TimerView uses 48pt — fixed, not part of this scale.
+
+## Design Tokens (`AppDesign` enum in `DesignSystem.swift`)
+
+Single source of truth for all visual constants. Always pull from here instead of hardcoding.
+
+### Radii
+| Token | Value | Usage |
+|-------|-------|-------|
+| `Radius.card` | 16pt | Cards, sheet containers, chunky buttons |
+| `Radius.badge` | 12pt | Icon badges, text fields, action buttons |
+| `Radius.button` | 10pt | Compact inline buttons (value box, +/−) |
+| `Radius.heatmap` | 3pt | Contribution graph squares + legend swatches |
+
+### Spacing
+`xxs=4, xs=6, sm=8, md=12, lg=16, xl=20, xxl=24`
+
+### Card Surface
+`Card.background = white/5`, `Card.border = white/8`, `Card.radius = 16pt`. Use `.cardStyle(padding:)` modifier.
+
+### Controls (inline, inside setting rows)
+`Control.radius = 10pt`, `Control.background = white/4%`, `Control.padding = 8pt`
+`Control.iconSize = controlValueSize` (20pt)
+**Sizing**: all control buttons (value box, +/−, action buttons, WorkoutInfo block) use `.padding(AppDesign.Control.padding)` — no `frame(height:)`. This keeps top/bottom equal to left/right padding.
+
+### Action Buttons
+Full-width icon-only buttons: play, reset, plus, checkmark, back.
+`ActionButton.radius = 12pt`. Height is content-driven via `.padding(.vertical, AppDesign.Control.padding)` — **do not** use `frame(height: 44)`.
+`ActionButton.iconSize = controlValueSize` (20pt) for symbol glyphs.
+
+### Workout Info Block
+Total workout time — shown in HomeView header, PresetCard top-left, PresetEditView bottom row.
+`WorkoutInfo.iconSize = 14pt`, `WorkoutInfo.fontSize = Typography.controlValueSize` (matches timer rectangle values), `WorkoutInfo.background = #5DA9FF @ 15%`
+Padding: `.padding(AppDesign.Control.padding)` — no fixed frame height.
+
+### Semantic Icons
+These SF Symbol names are fixed across all screens. Always use the matching color.
+
+| Token | SF Symbol | Color | Meaning |
+|-------|-----------|-------|---------|
+| `Icons.rounds` | `repeat` | `.green` | Number of rounds |
+| `Icons.work` | `flame.fill` | `.orange` | Round duration |
+| `Icons.rest` | `pause.fill` | `.blue` | Break duration |
+| `Icons.getReady` | `hourglass` | `.yellow` | Get-ready countdown |
+| `Icons.roundEnd` | `bell.fill` | `.yellow` | Round-end notice |
+| `Icons.breakEnd` | `bell.fill` | `.cyan` | Break-end notice |
+| `Icons.time` | `clock.fill` | `.appOrange` | Total workout time |
+| `Icons.play` | `play.fill` | navy/white | Start action |
+| `Icons.plus` | `plus` | white | Save/add action |
+| `Icons.reset` | `arrow.2.circlepath` | white | Reset to defaults |
+| `Icons.confirm` | `checkmark` | white | Confirm/save |
+| `Icons.back` | `chevron.left` | white | Go back |
 
 ## Typography Modifiers
 
 | Modifier | Font | Usage |
 |----------|------|-------|
-| `.aggressiveHeading(size:)` | Black weight, italic, uppercase, -0.5 tracking | Page titles, phase banner |
-| `.labelUppercase(size:)` | Heavy weight, uppercase, +2 tracking, secondary color | Section labels, card subtitles |
-| `.timerDisplay(size:)` | Black weight, monospaced, -2 tracking, monospacedDigit, fixedSize(vertical) | Main countdown timer |
+| `.aggressiveHeading(size:)` | Black, italic, uppercase, -0.5 tracking | Page headings (`pageTitleSize` = 120pt + `minimumScaleFactor(0.3)`), phase banner (48pt — do not change) |
+| `.labelUppercase(size:)` | Heavy, uppercase, +2 tracking, secondary color | Section labels, card subtitles, preset stats |
+| `.timerDisplay(size:)` | Black, monospaced, -2 tracking, monospacedDigit, fixedSize(vertical) | Main countdown timer (96pt) |
+| `.rowTitle()` | `rowTitleSize` = 15pt semibold italic uppercase | SettingRow titles, Privacy Policy — base of the type scale |
+| `.cardTitle()` | `cardTitleSize` = 30pt semibold italic uppercase (2× rowTitle) | Preset card name |
 
-## Card Container
+**`minimumScaleFactor` must be applied directly to `Text`, not through a `ViewModifier` wrapper** — the scaling never reaches the text renderer when wrapped.
 
-`.cardStyle(padding:)` applies: `padding`, `white/5` background, 16pt corner radius, `white/8` border stroke.
+## Spacing & Layout Rules
 
-Used for all content sections (stats cards, contribution graph container, settings groups).
+- Screen top padding: 20pt (`.padding(.top, 20)`)
+- Screen horizontal/bottom padding: 16pt (`.padding([.horizontal, .bottom])`)
+- VStack spacing between sections: `AppDesign.Layout.rowSpacing` (12pt) throughout all tabs
+- **`Layout.titleBottomTrim`**: negative bottom padding (e.g. `-10pt`) on **page titles** and on the **Home total-workout pill** so the visual gap to the next row matches row-to-row spacing. **Do not** put negative padding on small square header buttons — `PressFeedbackButtonStyle` uses `clipShape` and will clip the label. Presets `+`: use `HStack(alignment: .bottom)` with the title, and a fixed `frame(width:height:)` square (`ActionButton.height` × `ActionButton.height`) for the icon — no trim on the button.
+- Card internal padding: 16pt (`.cardStyle(padding: 16)`)
+- All SettingRow titles: uppercase, centered, `lineLimit(2)`, `minimumScaleFactor(0.8)`
 
 ## Buttons
 
-All buttons use `ChunkyButtonStyle` or `PressFeedbackButtonStyle` variants.
+### Action Buttons (standalone icon-only)
+Used at the bottom of HomeView and inside PresetCard. Height 44pt, radius 12pt, font 20pt bold.
 ```swift
-.buttonStyle(.chunkyPrimary)   // cyan bg, dark text — resume, confirm
-.buttonStyle(.chunkyDanger)    // red bg, white text — stop
-.buttonStyle(.chunkyOrange)    // orange bg, white text — start, presets
-.buttonStyle(.chunkyGhost)     // white/10 bg, white text — pause, secondary
+// Play (cyan)
+PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: .appCyan, pressedBackground: .appCyanPressed)
+// Reset (ghost)
+PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: Color.white.opacity(0.08), pressedBackground: Color.white.opacity(0.15))
+// Plus / Save / Confirm (orange)
+PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: .appOrange, pressedBackground: .appOrangePressed)
+// Back (ghost)
+PressFeedbackButtonStyle(cornerRadius: 12, normalBackground: Color.white.opacity(0.08), pressedBackground: Color.white.opacity(0.15))
 ```
+Back/plus/check/play/reset icon glyphs should use `AppDesign.Typography.controlValueSize` with `.padding(AppDesign.Control.padding)` unless a screen-specific exception is documented.
 
-Button spec: 18pt black italic uppercase, 20pt vertical padding, 16pt corner radius.
+### Chunky Buttons (text label, full-width)
+Used in TimerView (PAUSE, RESUME, STOP).
+```swift
+.buttonStyle(.chunkyPrimary)   // cyan bg — resume
+.buttonStyle(.chunkyDanger)    // red bg  — stop
+.buttonStyle(.chunkyGhost)     // white/10 — pause
+```
+Spec: 18pt black italic uppercase, 20pt vertical padding, 16pt corner radius.
 
 ### Interaction Feedback
-- **No Scale/Pressed States**: All scale effects and pressed-state background color changes have been removed app-wide for a static, instant feel.
-- **Keypad Feedback**: Keypad and numeric buttons do not change color when pressed.
-
-The only remaining tap-related visual feedback in the timer editor flow is invalid-entry feedback inside `NumericSettingEditorSheet`:
-- if a keypad edit would go out of range, the digit boxes flash red and shake
-- normal valid button presses do not change button color
+No scale or pressed-state color changes app-wide (static, instant feel). The only exception is `NumericSettingEditorSheet` which flashes digit boxes red and shakes on invalid input.
 
 ## Components
 
@@ -74,124 +155,106 @@ The only remaining tap-related visual feedback in the timer editor flow is inval
 ```swift
 AppBackground()
 ```
-Required on every page. Provides the dark navy base + red gradient from the top. Never substitute with a raw color fill.
+Required on every page. Dark navy base + red gradient from the top. Never substitute with a raw color fill.
 
 ### SettingRow
 Two modes:
 ```swift
-SettingRow(label: "ROUNDS", icon: "repeat", iconColor: .green, binding: $vm.rounds, mode: .count(range: 1...20, step: 1, suffix: ""))
-SettingRow(label: "WORK", icon: "flame.fill", iconColor: .orange, binding: $vm.roundDuration, mode: .duration(min: 30, max: 600, step: 30))
+SettingRow(icon: "repeat", iconColor: .green, title: "ROUND", mode: .count(range: 1...50), value: $rounds)
+SettingRow(icon: "flame.fill", iconColor: .orange, title: "ROUND LENGTH", mode: .duration(), value: $roundDuration)
 ```
-Use for all new stepper or duration settings. Do not build one-off stepper HStacks.
-
-Each row now supports two editing paths:
-- `-` / `+` still apply the configured step increment immediately.
-- Tapping the value chip opens `NumericSettingEditorSheet`, a focused bottom sheet with a custom keypad and place-value editing.
-
-The value chip includes a pencil affordance. Keep that pattern for any future tappable numeric setting rows.
+- Title is uppercase, 15pt semibold italic white, centered in available space
+- Tapping the icon badge resets that field to its default value
+- Tapping the value chip opens `NumericSettingEditorSheet`
+- `+` / `−` apply the configured step immediately — SF Symbols `plus.circle.fill` / `minus.circle.fill` use `.font(.system(size: AppDesign.Typography.controlValueSize, weight: .bold))` and `.padding(AppDesign.Control.padding)` to match value-chip text size and insets.
 
 ### NumericSettingEditorSheet
-
-Reusable numeric-entry sheet used by both the timer home screen and the preset editor.
-
-Behavior:
-- Count-based values render as fixed-width digits based on the max range width.
-- Duration values render as `MM:SS` with separate selectable digits.
-- Tapping a digit selects the current place.
-- Typing a keypad digit replaces only the selected place, then advances one place to the right.
-- Backspace zeroes the selected place and moves one place to the left.
-- Changes are committed only when the user taps `Apply`.
-- The sheet opens directly at its single tall detent (`.fraction(0.86)`) so the keypad is already expanded when presented.
-- The duplicate preview value under the digit boxes has been removed.
-- The `Apply` button uses the active setting color rather than a shared orange accent.
-- If a typed or backspaced value would fall outside the setting's allowed range, the digit boxes stay on the current valid value, flash red, and shake horizontally.
-
-This sheet is the approved solution for "show the current field while the keypad is up" because it isolates the field instead of forcing the parent scroll view to shift around it.
+Custom keypad for direct numeric entry. Fixed `height(420)` detent.
+- Duration values render as `MM:SS`
+- Keypad buttons: 44pt tall (`ActionButton.height`). Digit/backspace symbols use `controlValueSize` and `.padding(AppDesign.Control.padding)`.
+- Apply button: checkmark icon (not text), full-width, uses `controlValueSize` + `.padding(AppDesign.Control.padding)` and the active setting's color.
+- Invalid entry: digit boxes flash red and shake; no change committed
 
 ### IconBadge
 ```swift
 IconBadge(systemName: "flame.fill", color: .orange)
 ```
-44×44pt, colored background at 15% opacity, 12pt corner radius.
+Default is 44×44pt, colored background at 15% opacity, 12pt corner radius. For SettingRow left icons, pass explicit `size` and `iconSize` so icon glyph uses `controlValueSize` with effective insets matching `Control.padding`.
+Use the same explicit `size`/`iconSize` pattern for the Settings Privacy Policy icon badge.
 
-### Timer info card
-The three-card grid in `TimerView` is still local to `MainTimerViews.swift`: each card shows an icon badge, bold monospaced value, and uppercase label. Pattern:
+### Workout Info Block
+Shown top-right of HomeView header, PresetCard top-left, and PresetEditView bottom row. On HomeView, apply `.padding(.bottom, AppDesign.Layout.titleBottomTrim)` to the pill so spacing to `TimerSettingsEditor` matches SettingRow gaps.
 ```swift
-VStack(spacing: 6) {
-    IconBadge(systemName: icon, color: iconColor)
-    Text(value).font(.system(size: 18, weight: .bold, design: .monospaced)).foregroundColor(.white)
-    Text(title).labelUppercase(size: 8)
+HStack(spacing: 6) {
+    Image(systemName: "clock.fill").font(.system(size: AppDesign.WorkoutInfo.iconSize))
+    Text(totalSeconds.mmss).font(.system(size: AppDesign.WorkoutInfo.fontSize, weight: .bold, design: .monospaced))
 }
-.frame(maxWidth: .infinity)
-.padding(.vertical, 16)
-.background(Color.white.opacity(0.05))
-.cornerRadius(12)
-.overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.08), lineWidth: 1))
+.foregroundColor(.white)
+.padding(AppDesign.Control.padding)
+.background(AppDesign.WorkoutInfo.background)
+.cornerRadius(AppDesign.ActionButton.radius)
 ```
 
-## ContributionHeatmap (StatsView)
+### PresetCard
+Card in PresetsView. Internal padding: 16pt (`AppDesign.Spacing.lg`).
+- **Top row**: Total workout time pill (same as Workout Info Block) + `Spacer` + ellipsis `Menu` (edit/delete).
+- **Preset name**: `.cardTitle()` — `cardTitleSize`, semibold, uppercase. `.lineLimit(1).minimumScaleFactor(0.5)` on `Text`.
+- **Stats row** (under title): Single `HStack` with three `presetStatCard` pills — **icon + value only** (no "ROUNDS" / "WORK" / "REST" text). `repeat` (green) + round count, `flame.fill` (orange) + round duration MM:SS, `pause.fill` (blue) + break duration MM:SS. Each pill: `.padding(AppDesign.Control.padding)`, `.frame(maxWidth: .infinity)`, `Radius.button`, value font `controlValueSize`. Do NOT use `TimerInfoCard` here.
+- **Play button**: icon-only (`play.fill`), orange, full-width, icon uses `controlValueSize` and `.padding(AppDesign.Control.padding)` (same as SettingRow value controls).
 
-365-day GitHub-style activity graph. **Implemented with `Canvas`** — a single draw call. Do not replace with LazyVGrid or any individual view approach.
-
-Key constraints:
-- **Uses `Canvas { ctx, size in ... }` with `.frame(height: gridHeight)`.** `gridHeight` is derived from `@State private var squareSize: CGFloat = 14`.
-- `squareSize` is updated by `.onGeometryChange(for: CGFloat.self) { $0.size.width } action: { ... }` — fires once when the view lays out, computing exact squareSize from available width.
-- All drawing data (`dailyCounts`, `days`) is precomputed as local `let` constants in `body` before being captured by the Canvas closure. This avoids recomputing per-frame.
-- The Canvas closure must not call `self` methods — inline all color logic directly in the closure using the captured local constants.
-- 18 columns × 21 rows = 378 cells; only 365 are drawn (loop runs `0..<allDays.count`).
-- Legend squares use the same `squareSize` state variable. Legend text scales as `max(9, squareSize * 0.8)`.
-
-Intensity levels (cyan opacity): continuous — `0.25 + intensity * 0.75` where `intensity` is a normalized [0,1] value. Empty days use opacity 0.06. Color logic is inlined directly in the Canvas closure (no helper method on `self`). Legend levels are `[0, 0.25, 0.5, 0.75, 1.0]` mapped through the same formula.
-
-**Why Canvas**: LazyVGrid with 378 cells creates 378 SwiftUI view objects. This layout cost blocks the main thread during tab-switch animations, causing liquid glass tab bar lag on the Stats tab. Canvas is a single draw call with zero view objects — the render is instant.
+### Timer Info Cards (TimerView)
+The three cards in the active timer screen (ROUNDS, WORK, REST):
+```swift
+timerInfoCard(title: "ROUNDS", value: "...", icon: "repeat")
+timerInfoCard(title: "WORK",   value: ...,   icon: "flame.fill")
+timerInfoCard(title: "REST",   value: ...,   icon: "pause.fill")
+```
+Pattern: `IconBadge` + bold monospaced value + `labelUppercase(size: 8)` title. Cards use `cornerRadius(AppDesign.Radius.card)`.
+**Padding**: `.padding(16)` — uniform 16pt all sides. Matches `presetStatCard` in PresetCard.
 
 ## Navigation
 
 - 4-tab `TabView`: Timer, Presets, Stats, Settings
-- Global tab tint is white, but each tab icon is rendered with its own explicit color image
-- Each tab owns a root `NavigationStack`
-- Preset editing is presented as a sheet, not push navigation
-- "Save as Preset" from the timer home screen opens the same preset-edit sheet used by the Presets tab, prefilled with the current timer values
-- Preset edit sheets presented from the Timer and Presets tabs use the system drag indicator instead of an in-content close button
+- Each tab owns a root `NavigationStack` (Presets tab uses path-based navigation)
+- **Preset editing is a push navigation page** (not a sheet) — tab bar stays visible
+- `AppNavigationState` (in `TimerViewModel.swift`) owns:
+  - `selectedTab: AppTab`
+  - `presetsPath: [PresetsDestination]` — drives `NavigationStack` in `PresetsView`
+  - `presetsNewPresetSettings: TimerSettings?` — pre-fills the add-preset page
+  - `presetsReturnTab: AppTab` — determines which tab `<` navigates back to
+- `PresetsDestination` enum: `.add` or `.edit(UUID)`
+- Pressing `+` from the Timer tab: sets `presetsReturnTab = .timer`, switches to Presets tab, pushes `.add`
+- Pressing `+` from the Presets tab: sets `presetsReturnTab = .presets`, pushes `.add`
+- Pressing `<` in PresetEditView: calls `dismiss()` then switches to `presetsReturnTab` if not already `.presets`
+
+## ContributionHeatmap (StatsView)
+
+365-day GitHub-style activity graph. **Implemented with `Canvas`** — a single draw call. Do not replace with LazyVGrid.
+
+Key constraints:
+- `Canvas { ctx, size in ... }` with `.frame(height: gridHeight)`
+- `squareSize` updated by `.onGeometryChange(for: CGFloat.self)`
+- 18 columns, legend squares use `AppDesign.Radius.heatmap` (3pt) cornerRadius
+- Intensity: `0.25 + intensity * 0.75` opacity on `appStatsGreen`. Empty days: `white/6%`
 
 ## Animations
 
-- **Phase banner + timer display pulse**: handled by `PulseEffect` ViewModifier (defined in `TimerView.swift`). When `isInNoticeWindow` becomes `true`, `withAnimation(.repeatForever)` starts a scale pulse (1.03–1.05, `easeInOut(0.5s)` autoreverse). When `isInNoticeWindow` becomes `false`, `withAnimation(.spring(duration: 0.15))` cleanly snaps scale back to 1.0. There is no `@State isPulsing` flag — the ViewModifier drives itself via `onChange(of: isInNoticeWindow)`.
-- **Button press**: No scale or color animations.
-- **Tab switching**: system default
-- **Progress bars**: `.animation(.linear(duration: 1.0))` to interpolate discrete 1-second ticks.
-
-## Elapsed / Remaining Time
-
-`TimerView` displays ELAPSED and REMAINING labels below the main timer countdown. These use secondary text styling: size 16 monospaced, `appTextSecondary` color. They are always visible during active workout phases.
-
-The elapsed/remaining section is positioned using fixed padding rather than `Spacer()` instances:
-- `.padding(.top, 20)` at the bottom of the main timer
-- `.padding(.bottom, 16)` between the timer and the elapsed/remaining block
-- `.padding(.bottom, 16)` between the elapsed/remaining block and the info cards row
-
-The top "ROUND x/y" text has been removed from the timer layout.
-
-## Timer Digit Clipping Fix
-
-`.padding(.trailing, 4)` is applied to the timer text container to prevent the rightmost digit from being clipped at large font sizes on smaller screen widths.
+- **Phase banner pulse**: `PulseEffect` ViewModifier in `TimerView.swift`. Pulses on `isInNoticeWindow`.
+- **Progress bars**: `.animation(.linear(duration: 1.0))` on round progress bars.
+- **Button press**: No animations.
 
 ## SegmentedRoundProgressBar
 
-The round-progress bar below the main timer has the following layout rules:
-
-- Rounds are displayed in rows of up to 10 bars each (supports up to 50 rounds total).
-- Incomplete rows (the last row when total rounds are not a multiple of 10) are centered horizontally.
-- `GeometryReader` is used to calculate consistent bar widths regardless of screen size.
-- Each bar fills smoothly using `.animation(.linear(duration: 1.0))` so the progress visually interpolates between 1-second ticks.
-- During `.breakTime` phase, completed rounds (including the round that just ended) show as fully filled, so the bar doesn't disappear during breaks.
-- During `.done` phase, all bars including the current round bar show as completed.
-- **Fill color is always `appOrange`** — the fill does not switch to `appRed` during the notice window.
-- The fill is a plain `Rectangle` (or `Color`) clipped with `.clipShape(RoundedRectangle(cornerRadius: 4))` so it stays within the bar's rounded corners and does not overflow at the leading edge when progress is near zero.
+- Rows of up to 10 bars (supports 50 rounds)
+- Incomplete rows centered horizontally
+- Fill color always `appOrange`
+- During `.breakTime`: completed rounds show as filled
+- During `.done`: all bars filled
 
 ## Do Not
 
-- Do not use `.navigationBarHidden(false)` — all nav bars are hidden on all screens
-- Do not add `#Preview` macros — use `PreviewProvider` or skip
+- Do not use `.navigationBarHidden(false)` — all nav bars are hidden
 - Do not use `UIKit` views — pure SwiftUI only
-- Do not use raw `Color.appBackground` as a page background — always `AppBackground()`
+- Do not use raw `Color.appBackground` as page background — always `AppBackground()`
+- Do not use `#Preview` macros
+- Do not apply `minimumScaleFactor` inside a `ViewModifier` — apply directly on `Text`

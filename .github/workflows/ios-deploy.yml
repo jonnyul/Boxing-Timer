@@ -5,9 +5,13 @@ on:
   push:
     branches:
       - main
+      - dev
     paths:
       - 'ios/**'
       - '.github/workflows/ios-deploy.yml'
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
@@ -22,7 +26,7 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@c984c1a20bb35a1cbda04477c816cea024418be9 # v1.294.0
         with:
           ruby-version: '3.3'
           bundler: 'latest'
@@ -43,7 +47,6 @@ jobs:
           echo "Patched $TOKEN_RB"
 
           # Fix "No data" crash when fetching review detail on first submission
-          # Step 1: patch model.rb so fetch_app_store_review_detail returns nil instead of raising
           MODEL_RB="$FASTLANE_DIR/spaceship/lib/spaceship/connect_api/model.rb"
           ruby -e "
             path = '$MODEL_RB'
@@ -53,7 +56,7 @@ jobs:
           "
           echo "Patched $MODEL_RB"
 
-          # Step 2: patch upload_metadata.rb to use safe navigator so nil review detail doesn't crash
+          # Use safe navigation so missing review detail does not crash metadata upload
           METADATA_RB="$FASTLANE_DIR/deliver/lib/deliver/upload_metadata.rb"
           ruby -e "
             path = '$METADATA_RB'
@@ -69,11 +72,20 @@ jobs:
       - name: Write App Store Connect API Key
         env:
           ASC_API_KEY_CONTENT: ${{ secrets.ASC_API_KEY_CONTENT }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
         run: |
           mkdir -p ~/asc-keys
-          echo "$ASC_API_KEY_CONTENT" | base64 --decode > ~/asc-keys/AuthKey_3349GWYVGR.p8
+          echo "$ASC_API_KEY_CONTENT" | base64 --decode > ~/asc-keys/AuthKey_${ASC_KEY_ID}.p8
 
       - name: Prepare ASC version for submission
+        if: github.ref == 'refs/heads/main'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          REVIEW_CONTACT_FIRST_NAME: ${{ secrets.REVIEW_CONTACT_FIRST_NAME }}
+          REVIEW_CONTACT_LAST_NAME: ${{ secrets.REVIEW_CONTACT_LAST_NAME }}
+          REVIEW_CONTACT_PHONE: ${{ secrets.REVIEW_CONTACT_PHONE }}
+          REVIEW_CONTACT_EMAIL: ${{ secrets.REVIEW_CONTACT_EMAIL }}
         working-directory: ios
         run: |
           bundle exec ruby << 'RUBY'
@@ -82,12 +94,11 @@ jobs:
           require 'json'
           require 'jwt'
 
-          KEY_ID     = "3349GWYVGR"
-          ISSUER_ID  = "220f0894-51a2-449c-ad61-9715441b4a11"
-          KEY_FILE   = File.join(Dir.home, "asc-keys/AuthKey_3349GWYVGR.p8")
+          KEY_ID     = ENV["ASC_KEY_ID"]
+          ISSUER_ID  = ENV["ASC_ISSUER_ID"]
+          KEY_FILE   = File.join(Dir.home, "asc-keys/AuthKey_#{KEY_ID}.p8")
           BUNDLE_ID  = "john.Boxing-Timer"
 
-          # Auth via Spaceship to find the version
           token = Spaceship::ConnectAPI::Token.create(
             key_id: KEY_ID, issuer_id: ISSUER_ID,
             filepath: KEY_FILE, duration: 1200, in_house: false
@@ -99,20 +110,19 @@ jobs:
           vid     = version.id
           puts "Version: #{version.version_string} (#{vid})"
 
-          # Generate a fresh JWT for raw REST calls
-          ec_key  = OpenSSL::PKey.read(File.read(KEY_FILE))
-          bearer  = JWT.encode(
+          ec_key = OpenSSL::PKey.read(File.read(KEY_FILE))
+          bearer = JWT.encode(
             { iss: ISSUER_ID, iat: Time.now.to_i, exp: Time.now.to_i + 1200, aud: "appstoreconnect-v1" },
             ec_key, "ES256", { kid: KEY_ID }
           )
 
           def asc(method, path, body, bearer)
-            uri  = URI("https://api.appstoreconnect.apple.com/v1/#{path}")
+            uri = URI("https://api.appstoreconnect.apple.com/v1/#{path}")
             http = Net::HTTP.new(uri.host, uri.port)
             http.use_ssl = true
-            req  = { "PATCH" => Net::HTTP::Patch, "POST" => Net::HTTP::Post }[method].new(uri)
+            req = { "PATCH" => Net::HTTP::Patch, "POST" => Net::HTTP::Post }[method].new(uri)
             req["Authorization"] = "Bearer #{bearer}"
-            req["Content-Type"]  = "application/json"
+            req["Content-Type"] = "application/json"
             req.body = body.to_json
             resp = http.request(req)
             puts "#{method} #{path}: HTTP #{resp.code}"
@@ -120,21 +130,24 @@ jobs:
             resp
           end
 
-          # Set contentRightsDeclaration on the app (not the version)
           asc("PATCH", "apps/#{app.id}", {
-            data: { type: "apps", id: app.id,
-                    attributes: { contentRightsDeclaration: "DOES_NOT_USE_THIRD_PARTY_CONTENT" } }
+            data: {
+              type: "apps",
+              id: app.id,
+              attributes: { contentRightsDeclaration: "DOES_NOT_USE_THIRD_PARTY_CONTENT" }
+            }
           }, bearer)
 
-          # Create appStoreReviewDetail if missing
           detail = version.fetch_app_store_review_detail
           if detail.nil?
             asc("POST", "appStoreReviewDetails", {
               data: {
                 type: "appStoreReviewDetails",
                 attributes: {
-                  contactFirstName: "Jonathan", contactLastName: "Ulloa",
-                  contactPhone: "+1 9152633431", contactEmail: "jonathanulloa08@icloud.com",
+                  contactFirstName: ENV["REVIEW_CONTACT_FIRST_NAME"],
+                  contactLastName: ENV["REVIEW_CONTACT_LAST_NAME"],
+                  contactPhone: ENV["REVIEW_CONTACT_PHONE"],
+                  contactEmail: ENV["REVIEW_CONTACT_EMAIL"],
                   demoAccountRequired: false
                 },
                 relationships: {
@@ -149,9 +162,11 @@ jobs:
           RUBY
 
       - name: Run Fastlane release
+        if: github.ref == 'refs/heads/main'
         working-directory: ios
         env:
-          ASC_KEY_FILEPATH: ~/asc-keys/AuthKey_3349GWYVGR.p8
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_KEY_FILEPATH: ~/asc-keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
         run: bundle exec fastlane release

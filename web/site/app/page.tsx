@@ -132,27 +132,7 @@ export default function PrivacyPolicy() {
             </p>
           </Section>
 
-          {/* Contact */}
-          <Section title="Contact Us">
-            <p>
-              If you have any questions or concerns about this Privacy Policy,
-              please contact us at:
-            </p>
-            <p className="mt-3">
-              <a
-                href="mailto:privacy@boxingtimer.app"
-                className="font-medium text-blue-300 underline underline-offset-2 hover:text-blue-200 transition-colors"
-              >
-                privacy@boxingtimer.app
-              </a>
-            </p>
-          </Section>
         </div>
-
-        {/* Footer */}
-        <footer className="mt-16 border-t border-white/20 pt-8 text-center text-sm text-white/40">
-          <p>&copy; {new Date().getFullYear()} Boxing Timer. All rights reserved.</p>
-        </footer>
       </div>
     </main>
   );

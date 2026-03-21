@@ -11,15 +11,24 @@ struct TimerView: View {
                 Spacer()
 
                 Text(timerVM.phaseDisplayText)
-                    .aggressiveHeading(size: 48)
+                    .font(.system(size: 48, weight: .black))
+                    .italic()
+                    .textCase(.uppercase)
+                    .tracking(-0.5)
                     .foregroundColor(phaseBannerColor)
-                    .modifier(PulseEffect(active: timerVM.isInNoticeWindow, scale: 1.05))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.4)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 20)
                     .padding(.bottom, 8)
                 Text(timerVM.timeRemaining.mmss)
-                    .timerDisplay(size: 96)
-                    .padding(.trailing, 4)
+                    .font(.system(size: 96, weight: .black, design: .monospaced))
+                    .tracking(-2)
+                    .monospacedDigit()
                     .foregroundColor(timerVM.isInNoticeWindow ? .appRed : .white)
-                    .modifier(PulseEffect(active: timerVM.isInNoticeWindow, scale: 1.03))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .padding(.trailing, 4)
                     .padding(.top, 20)
                     .padding(.bottom, 16)
                 HStack(spacing: 24) {
@@ -44,9 +53,12 @@ struct TimerView: View {
                 }
                 .padding(.bottom, 20)
                 HStack(spacing: 12) {
-                    timerInfoCard(title: "ROUNDS", value: "\(timerVM.currentRound)/\(timerVM.settings.numberOfRounds)", icon: "repeat")
-                    timerInfoCard(title: "WORK", value: timerVM.settings.roundDuration.mmss, icon: "flame.fill")
-                    timerInfoCard(title: "REST", value: timerVM.settings.breakDuration.mmss, icon: "pause.fill")
+                    TimerInfoCard(title: "ROUNDS", value: "\(timerVM.currentRound)/\(timerVM.settings.numberOfRounds)", icon: "repeat", iconColor: .green)
+                        .frame(maxWidth: .infinity)
+                    TimerInfoCard(title: "WORK", value: timerVM.settings.roundDuration.mmss, icon: "flame.fill", iconColor: .orange)
+                        .frame(maxWidth: .infinity)
+                    TimerInfoCard(title: "REST", value: timerVM.settings.breakDuration.mmss, icon: "pause.fill", iconColor: .blue)
+                        .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal, 20)
 
@@ -101,33 +113,6 @@ struct TimerView: View {
         }
     }
 
-    private func timerInfoCard(title: String, value: String, icon: String) -> some View {
-        VStack(spacing: 6) {
-            IconBadge(systemName: icon, color: iconColor(for: icon))
-            Text(value)
-                .font(.system(size: 18, weight: .bold, design: .monospaced))
-                .foregroundColor(.white)
-            Text(title)
-                .labelUppercase(size: 8)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
-    }
-
-    private func iconColor(for icon: String) -> Color {
-        switch icon {
-        case "repeat": .green
-        case "flame.fill": .orange
-        case "pause.fill": .blue
-        default: .appCyan
-        }
-    }
 }
 
 struct SegmentedRoundProgressBar: View {
@@ -175,7 +160,7 @@ struct SegmentedRoundProgressBar: View {
     @ViewBuilder
     private func roundBar(for round: Int, barWidth: CGFloat) -> some View {
         ZStack(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 4)
+            RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                 .fill(Color.white.opacity(0.1))
 
             if isCompleted(round: round) {
@@ -187,7 +172,7 @@ struct SegmentedRoundProgressBar: View {
             }
         }
         .frame(width: barWidth, height: barHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .clipShape(RoundedRectangle(cornerRadius: AppDesign.Radius.ten))
     }
 
     private func isCompleted(round: Int) -> Bool {
@@ -202,28 +187,6 @@ struct SegmentedRoundProgressBar: View {
     }
 }
 
-struct PulseEffect: ViewModifier {
-    let active: Bool
-    var scale: CGFloat = 1.05
-
-    @State private var animating = false
-
-    func body(content: Content) -> some View {
-        content
-            .scaleEffect(animating ? scale : 1)
-            .onChange(of: active) {
-                if active {
-                    withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
-                        animating = true
-                    }
-                } else {
-                    withAnimation(.spring(duration: 0.15)) {
-                        animating = false
-                    }
-                }
-            }
-    }
-}
 
 #Preview {
     TimerView()

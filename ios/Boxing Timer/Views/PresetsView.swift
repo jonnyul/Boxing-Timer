@@ -4,74 +4,42 @@ struct PresetsView: View {
     @EnvironmentObject var presetsVM: PresetsViewModel
     @EnvironmentObject var timerVM: TimerViewModel
     @EnvironmentObject var navigationState: AppNavigationState
-    @State private var showingAddPreset = false
-    @State private var presetToEdit: Preset?
     @State private var presetToDelete: Preset?
     @State private var showingDeleteConfirmation = false
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationState.presetsPath) {
             ZStack {
                 AppBackground()
 
                 ScrollView {
-                    VStack(spacing: 20) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("WORKOUT")
-                                    .aggressiveHeading(size: 32)
-                                    .foregroundColor(.white)
-                                Text("PRESETS")
-                                    .aggressiveHeading(size: 32)
-                                    .foregroundColor(.appOrange)
-                            }
+                    VStack(spacing: AppDesign.Layout.rowSpacing) {
+                        HStack(alignment: .bottom) {
+                            Text("PRESETS")
+                                .aggressiveHeading(size: AppDesign.Typography.pageTitleSize)
+                                .foregroundColor(.appOrange)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.3)
+                                .padding(.bottom, AppDesign.Layout.titleBottomTrim)
 
-                            Spacer()
+                            Spacer(minLength: 0)
 
                             Button {
-                                showingAddPreset = true
+                                navigationState.presetsNewPresetSettings = nil
+                                navigationState.presetsReturnTab = .presets
+                                navigationState.presetsPath = [.add]
                             } label: {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 14, weight: .bold))
-                                    Text("NEW")
-                                        .font(.system(size: 12, weight: .black))
-                                        .tracking(1)
-                                }
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 10)
+                                Image(systemName: "plus")
+                                    .font(.system(size: 23, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(AppDesign.Control.padding)
                             }
-                            .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 10, normalBackground: .appOrange, pressedBackground: .appOrange))
+                            .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
                         }
                         .padding(.top, 20)
 
-                        if presetsVM.presets.isEmpty {
-                            VStack(spacing: 20) {
-                                Image(systemName: "list.bullet.rectangle")
-                                    .font(.system(size: 60))
-                                    .foregroundColor(.white.opacity(0.3))
-
-                                VStack(spacing: 8) {
-                                    Text("No Presets Yet")
-                                        .font(.title2.weight(.bold))
-                                        .foregroundColor(.white)
-                                    Text("Create your first workout preset\nto get started")
-                                        .font(.subheadline)
-                                        .foregroundColor(.appTextSecondary)
-                                        .multilineTextAlignment(.center)
-                                }
-
-                                Button("CREATE PRESET") {
-                                    showingAddPreset = true
-                                }
-                                .buttonStyle(.chunkyOrange)
-                                .padding(.horizontal, 40)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 80)
-                        } else {
-                            VStack(spacing: 16) {
+                        if !presetsVM.presets.isEmpty {
+                            VStack(spacing: AppDesign.Layout.rowSpacing) {
                                 ForEach(presetsVM.presets) { preset in
                                     PresetCard(
                                         preset: preset,
@@ -81,7 +49,8 @@ struct PresetsView: View {
                                             navigationState.selectedTab = .timer
                                         },
                                         onEdit: {
-                                            presetToEdit = preset
+                                            navigationState.presetsReturnTab = .presets
+                                            navigationState.presetsPath = [.edit(preset.id)]
                                         },
                                         onDelete: {
                                             presetToDelete = preset
@@ -96,15 +65,19 @@ struct PresetsView: View {
                 }
             }
             .navigationBarHidden(true)
-            .sheet(isPresented: $showingAddPreset) {
-                PresetEditView(preset: nil, onSave: presetsVM.addPreset)
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
-            }
-            .sheet(item: $presetToEdit) { preset in
-                PresetEditView(preset: preset, onSave: presetsVM.updatePreset)
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
+            .navigationDestination(for: PresetsDestination.self) { destination in
+                switch destination {
+                case .add:
+                    PresetEditView(
+                        preset: nil,
+                        initialSettings: navigationState.presetsNewPresetSettings,
+                        onSave: presetsVM.addPreset
+                    )
+                case .edit(let id):
+                    if let preset = presetsVM.presets.first(where: { $0.id == id }) {
+                        PresetEditView(preset: preset, onSave: presetsVM.updatePreset)
+                    }
+                }
             }
             .alert("Delete Preset?", isPresented: $showingDeleteConfirmation) {
                 Button("Cancel", role: .cancel) {
@@ -133,13 +106,18 @@ struct PresetCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: AppDesign.Layout.rowSpacing) {
                 HStack {
-                    Text("\(preset.settings.totalSeconds / 60) min")
-                        .font(.system(size: 11, weight: .heavy))
-                        .tracking(1)
-                        .textCase(.uppercase)
-                        .foregroundColor(.appOrange)
+                    HStack(spacing: 6) {
+                        Image(systemName: "clock.fill")
+                            .font(.system(size: AppDesign.WorkoutInfo.iconSize))
+                        Text(preset.settings.totalSeconds.mmss)
+                            .font(.system(size: AppDesign.WorkoutInfo.fontSize, weight: .bold, design: .monospaced))
+                    }
+                    .foregroundColor(.white)
+                    .padding(AppDesign.Control.padding)
+                    .background(AppDesign.WorkoutInfo.background)
+                    .cornerRadius(AppDesign.Radius.ten)
 
                     Spacer()
 
@@ -152,60 +130,63 @@ struct PresetCard: View {
                             .foregroundColor(.white.opacity(0.5))
                             .frame(width: 32, height: 32)
                     }
-                    .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 10, normalBackground: .clear, pressedBackground: .clear, normalForeground: .white.opacity(0.5), pressedForeground: .white.opacity(0.5)))
+                    .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: .clear, pressedBackground: .clear, normalForeground: .white.opacity(0.5), pressedForeground: .white.opacity(0.5)))
                 }
 
                 Text(preset.name)
-                    .font(.system(size: 20, weight: .bold))
-                    .textCase(.uppercase)
+                    .cardTitle()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                     .foregroundColor(.white)
 
-                HStack(spacing: 6) {
-                    Image(systemName: "timer")
-                        .font(.system(size: 12))
-                        .foregroundColor(.appTextSecondary)
-                    Text(summaryText)
-                        .font(.system(size: 13))
-                        .foregroundColor(.appTextSecondary)
+                HStack(spacing: 12) {
+                    presetStatCard(icon: "repeat", color: .green, value: "\(preset.settings.numberOfRounds)")
+                    presetStatCard(icon: "flame.fill", color: .orange, value: preset.settings.roundDuration.mmss)
+                    presetStatCard(icon: "pause.fill", color: .blue, value: preset.settings.breakDuration.mmss)
                 }
 
                 Button {
                     onStart()
                 } label: {
-                    HStack {
-                        Image(systemName: "play.fill")
-                            .font(.system(size: 12))
-                        Text("Start Workout")
-                            .font(.system(size: 14, weight: .bold))
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
+                    Image(systemName: "play.fill")
+                        .font(.system(size: AppDesign.ActionButton.iconSize, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(AppDesign.Control.padding)
                 }
-                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 10, normalBackground: .appOrange, pressedBackground: .appOrange))
-                .padding(.top, 4)
+                .buttonStyle(PressFeedbackButtonStyle(cornerRadius: AppDesign.Radius.ten, normalBackground: .appOrange, pressedBackground: .appOrangePressed))
             }
-            .padding(20)
+            .padding(AppDesign.Spacing.lg)
         }
         .background(Color.white.opacity(0.05))
-        .cornerRadius(16)
+        .cornerRadius(AppDesign.Radius.ten)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
     }
 
-    private var summaryText: String {
-        let roundMinutes = preset.settings.roundDuration / 60
-        let roundSeconds = preset.settings.roundDuration % 60
-        let breakMinutes = preset.settings.breakDuration / 60
-        let breakSeconds = preset.settings.breakDuration % 60
-
-        let roundText = roundMinutes > 0 ? "\(roundMinutes)m\(roundSeconds > 0 ? " \(roundSeconds)s" : "")" : "\(roundSeconds)s"
-        let breakText = breakMinutes > 0 ? "\(breakMinutes)m\(breakSeconds > 0 ? " \(breakSeconds)s" : "")" : "\(breakSeconds)s"
-
-        return "\(preset.settings.numberOfRounds) Rounds • \(roundText) Work / \(breakText) Rest"
+    private func presetStatCard(icon: String, color: Color, value: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(color)
+            Text(value)
+                .font(.system(size: AppDesign.Typography.controlValueSize, weight: .bold, design: .monospaced))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        }
+        .padding(AppDesign.Control.padding)
+        .frame(maxWidth: .infinity)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(AppDesign.Radius.ten)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
     }
+
 }
 
 #Preview {

@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # GitHub Actions — keeps workflow action versions up to date
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  # Fastlane gem
+  - package-ecosystem: bundler
+    directory: /ios
+    schedule:
+      interval: weekly
+
+  # Next.js privacy policy site
+  - package-ecosystem: npm
+    directory: /web/site
+    schedule:
+      interval: weekly
+
+  # Catalyst UI Kit — JS demo
+  - package-ecosystem: npm
+    directory: /web/catalyst-ui-kit/demo/javascript
+    schedule:
+      interval: weekly
+
+  # Catalyst UI Kit — TS demo
+  - package-ecosystem: npm
+    directory: /web/catalyst-ui-kit/demo/typescript
+    schedule:
+      interval: weekly

@@ -2,10 +2,6 @@ import SwiftUI
 
 struct OptionsView: View {
     @EnvironmentObject var timerVM: TimerViewModel
-    @Environment(\.openURL) private var openURL
-    @State private var settings = TimerSettings()
-
-    private let privacyPolicyURL: URL? = nil
 
     var body: some View {
         NavigationStack {
@@ -13,111 +9,49 @@ struct OptionsView: View {
                 AppBackground()
 
                 ScrollView {
-                    VStack(spacing: 24) {
-                        Spacer()
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("APP")
-                                    .aggressiveHeading(size: 32)
-                                    .foregroundColor(.white)
-                                Text("SETTINGS")
-                                    .aggressiveHeading(size: 32)
-                                    .foregroundColor(.appTextSecondary)
-                            }
+                    VStack(spacing: AppDesign.Layout.rowSpacing) {
+                        Text("SETTINGS").foregroundColor(.appTextSecondary)
+                            .aggressiveHeading(size: AppDesign.Typography.pageTitleSize)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.3)
+                            .padding(.bottom, AppDesign.Layout.titleBottomTrim)
+                            .frame(maxWidth: .infinity, alignment: .center)
 
-                            Spacer()
-                        }
-
-                        VStack(alignment: .leading, spacing: 12) {
-                            SectionHeader(title: "AUDIO CONFIGURATION")
-
-                            VStack(spacing: 0) {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    HStack(spacing: 12) {
-                                        IconBadge(systemName: "bell.and.waves.left.and.right", color: .orange)
-
-                                        Text("Bell Type")
-                                            .font(.subheadline.weight(.medium))
-                                            .foregroundColor(.white)
-
-                                        Spacer()
-                                    }
-
-                                    SegmentedPicker(
-                                        selection: Binding(
-                                            get: { settings.bellsType },
-                                            set: { newValue in
-                                                settings.bellsType = newValue
-                                                saveSettings()
-                                                AudioManager.shared.playPreview(bellType: newValue)
-                                            }
-                                        ),
-                                        options: [1, 2, 3],
-                                        labels: [1: "Classic", 2: "Modern", 3: "Digital"]
-                                    )
-                                }
-                                .padding(16)
-                            }
-                            .background(Color.white.opacity(0.05))
-                            .cornerRadius(16)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                            )
-                        }
-
-                        VStack(alignment: .leading, spacing: 12) {
-                            SectionHeader(title: "PRIVACY")
-
-                            Button {
-                                guard let privacyPolicyURL else { return }
-                                openURL(privacyPolicyURL)
-                            } label: {
+                        NavigationLink(destination: PrivacyPolicyView()) {
                                 HStack(spacing: 12) {
-                                    IconBadge(systemName: "hand.raised.fill", color: .blue)
+                                    IconBadge(
+                                        systemName: "hand.raised.fill",
+                                        color: .blue,
+                                        size: AppDesign.Control.iconSize + (AppDesign.Control.padding * 2),
+                                        iconSize: AppDesign.Control.iconSize
+                                    )
 
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Privacy Policy")
-                                            .font(.subheadline.weight(.semibold))
-                                            .foregroundColor(.white)
-                                        Text("Add your URL in `OptionsView.swift`.")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(.appTextSecondary)
-                                    }
+                                    Text("Privacy Policy")
+                                        .rowTitle()
+                                        .foregroundColor(.white)
 
                                     Spacer()
 
-                                    Image(systemName: "arrow.up.right")
+                                    Image(systemName: "chevron.right")
                                         .font(.system(size: 14, weight: .bold))
                                         .foregroundColor(.appTextSecondary)
                                 }
                                 .padding(16)
+                                .background(Color.white.opacity(0.05))
+                                .cornerRadius(AppDesign.Radius.ten)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
+                                    RoundedRectangle(cornerRadius: AppDesign.Radius.ten)
                                         .stroke(Color.white.opacity(0.08), lineWidth: 1)
                                 )
                             }
-                            .buttonStyle(PressFeedbackButtonStyle(cornerRadius: 16, normalBackground: Color.white.opacity(0.05), pressedBackground: Color.white.opacity(0.05)))
-                        }
-
-                        Spacer()
-                        Text("Boxing Timer v1.0")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.appTextSecondary)
+                            .buttonStyle(.plain)
                     }
-                    .padding()
+                    .padding([.horizontal, .bottom])
+                    .padding(.top, 20)
                 }
             }
             .navigationBarHidden(true)
-            .onAppear {
-                settings = PersistenceManager.shared.loadSettings()
-            }
         }
-    }
-
-    private func saveSettings() {
-        PersistenceManager.shared.saveSettings(settings)
-        timerVM.updateSettings(settings)
     }
 }
 

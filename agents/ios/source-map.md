@@ -1,6 +1,6 @@
 # iOS — Source Map
 
-Current source layout after the March 13, 2026 split into per-concern files.
+Current source layout.
 
 ## Main App Target (`ios/Boxing Timer/`)
 
@@ -8,7 +8,7 @@ Current source layout after the March 13, 2026 split into per-concern files.
 
 | File | Purpose |
 |------|---------|
-| `Boxing_TimerApp.swift` | `@main` app entry. Creates the 4-tab `TabView`, injects environment objects, configures nav/tab bar appearance, and sets up the audio session. |
+| `Boxing_TimerApp.swift` | `@main` app entry. Creates the 4-tab `TabView`, injects environment objects, configures nav/tab bar appearance, sets up audio session. Tab bar timer icon is `clock.fill`. |
 
 ### Models/
 
@@ -22,7 +22,7 @@ Current source layout after the March 13, 2026 split into per-concern files.
 
 | File | Purpose |
 |------|---------|
-| `ViewModels/TimerViewModel.swift` | `TimerViewModel`, `TimerPhase`, `AppTab`, and `AppNavigationState`. All timer logic, background/foreground handling, and session saving. |
+| `ViewModels/TimerViewModel.swift` | `TimerViewModel`, `TimerPhase`, `AppTab`, `PresetsDestination`, and `AppNavigationState`. All timer logic, background/foreground handling, and session saving. `AppNavigationState` owns `selectedTab`, `presetsPath`, `presetsNewPresetSettings`, and `presetsReturnTab`. |
 | `ViewModels/PresetsViewModel.swift` | `PresetsViewModel` — loads, adds, updates, and deletes presets via `PersistenceManager`. |
 | `ViewModels/StatsViewModel.swift` | `StatsViewModel` — loads sessions off the main thread; exposes aggregate stats. |
 
@@ -30,29 +30,29 @@ Current source layout after the March 13, 2026 split into per-concern files.
 
 | File | Purpose |
 |------|---------|
-| `Views/HomeView.swift` | `HomeView` — idle home screen with settings editor, centered `Save as Preset` action, and start button; shows `TimerView` while running. |
-| `Views/TimerView.swift` | `TimerView`, `SegmentedRoundProgressBar`, `PulseEffect` — active-workout display, elapsed/remaining time, pause/stop controls. |
-| `Views/PresetsView.swift` | `PresetsView`, `PresetCard` — preset list, start/edit/delete actions. |
-| `Views/PresetEditView.swift` | `PresetEditView` — sheet for creating or editing a preset; can also be opened prefilled from the timer screen via `initialSettings`; uses the sheet drag indicator instead of an in-content close button. |
-| `Views/StatsView.swift` | `StatsView`, `StatSummaryCard`, `ContributionHeatmap` — training history with centered page title. |
-| `Views/OptionsView.swift` | `OptionsView` — bell-type picker and privacy policy link. |
+| `Views/HomeView.swift` | `HomeView` — idle home screen. Title "TIMER" (32pt, cyan, left-aligned) with total workout time block on top-right. Shows `TimerSettingsEditor` + three action buttons (play, reset, plus). Pressing plus sets `presetsReturnTab = .timer` and navigates to the preset-add page in the Presets tab. Shows `TimerView` inline while running. |
+| `Views/TimerView.swift` | `TimerView`, `SegmentedRoundProgressBar` — active-workout display, phase banner, elapsed/remaining time, timer info cards (ROUNDS/WORK/REST), round progress bar, pause/stop controls. |
+| `Views/PresetsView.swift` | `PresetsView`, `PresetCard` — uses `NavigationStack(path: $navigationState.presetsPath)` for path-based navigation. `PresetCard` shows clock icon + total time (orange), preset name, stats row with semantic icons (repeat/flame/pause), and a 44pt play-icon-only button. |
+| `Views/PresetEditView.swift` | `PresetEditView` — push-navigation page (not a sheet) for creating or editing a preset. Has a `<` back button top-left that returns to `presetsReturnTab`. Title is "PRESETS" (32pt, orange). Contains `TimerSettingsEditor`, name text field (44pt), total workout info block (44pt), and checkmark confirm button (44pt). |
+| `Views/StatsView.swift` | `StatsView`, `StatSummaryCard`, `ContributionHeatmap` — training history. |
+| `Views/OptionsView.swift` | `OptionsView` — privacy policy link only. |
 
 ### Components/
 
 | File | Purpose |
 |------|---------|
-| `Components/AppBackground.swift` | `AppBackground` — full-screen gradient background. |
+| `Components/AppBackground.swift` | `AppBackground` — full-screen gradient background. Required on every screen. |
 | `Components/SegmentedPicker.swift` | `SegmentedPicker<T>` — generic horizontal segmented control. |
-| `Components/NumericSettingEditorSheet.swift` | `NumericSettingEditorSheet` — custom keypad sheet for direct numeric entry with place-value selection, zero-out backspace behavior, active-color Apply button, and a fixed tall detent. |
-| `Components/SettingRow.swift` | `SettingRow` — stepper row with icon, label, +/− controls, and tap-to-edit value chip. |
-| `Components/TimerSettingsEditor.swift` | `TimerSettingsEditor` — stacked `SettingRow`s for all timer parameters; owns the sheet routing for keypad-based editing. |
+| `Components/NumericSettingEditorSheet.swift` | `NumericSettingEditorSheet` — keypad sheet. `height(420)` detent. Keypad buttons 44pt. Apply is a checkmark icon (not text), 44pt, uses active setting color. |
+| `Components/SettingRow.swift` | `SettingRow` — stepper row with icon badge, uppercase italic label (centered), value chip, +/− controls. Icon tap resets to default. |
+| `Components/TimerSettingsEditor.swift` | `TimerSettingsEditor` — stacked `SettingRow`s for all 6 timer parameters. Labels: ROUND, READY, ROUND LENGTH, ROUND END, BREAK LENGTH, BREAK END. |
 
 ### Utilities/
 
 | File | Purpose |
 |------|---------|
-| `Utilities/AudioManager.swift` | `AudioManager` — plays system sounds and manages silent background-audio keep-alive. |
+| `Utilities/AudioManager.swift` | `AudioManager` — plays system sounds; manages background audio keep-alive. |
 | `Utilities/ColorExtension.swift` | `Color` hex initializer and all app color tokens. |
-| `Utilities/DesignSystem.swift` | Typography modifiers (`AggressiveHeading`, `LabelStyle`, etc.), `CardStyle`, `ChunkyButtonStyle`, `TintedChunkyButtonStyle`, `PressFeedbackButtonStyle`, `IconBadge`, `SectionHeader`, and all `View` / `ButtonStyle` convenience extensions. |
+| `Utilities/DesignSystem.swift` | `AppDesign` enum (Radius, Spacing, Card, Badge, Control, ActionButton, WorkoutInfo, Icons, Layout tokens), typography modifiers (`AggressiveHeading`, `LabelStyle`, `TimerDisplayStyle`, `CardStyle`), `ChunkyButtonStyle`, `PressFeedbackButtonStyle`, `TintedChunkyButtonStyle`, `IconBadge`, `SectionHeader`. |
 | `Utilities/Extensions.swift` | `Int.mmss` formatting helper. |
-| `Utilities/PersistenceManager.swift` | `PersistenceManager` — UserDefaults for settings; JSON files for presets and sessions; no preset seeding; one-time cleanup of legacy built-in presets. |
+| `Utilities/PersistenceManager.swift` | `PersistenceManager` — UserDefaults for settings; JSON files for presets and sessions. |
