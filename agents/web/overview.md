@@ -6,6 +6,7 @@
 - **Framework:** Next.js (App Router), TypeScript, Tailwind CSS
 - **Package manager:** npm
 - **Purpose:** Single-page privacy policy for the Boxing Timer iOS app
+- **Scope:** `web/site/` is the only maintained web app in this repo. `web/catalyst-ui-kit/` was removed and should not be recreated unless explicitly requested.
 
 ## Structure
 

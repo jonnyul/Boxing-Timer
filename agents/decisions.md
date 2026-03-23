@@ -20,6 +20,7 @@ These were deliberately cut. Re-adding any of them will be reverted.
 | **Break End Notice toggle** | `OptionsView` alerts section | Removed from options screen — still configurable on home/preset screens |
 | **WorkoutName + Round fraction on lock screen** | `LiveActivityContentView` | Removed — lock screen now shows only phase name + timer |
 | **Live Activity** | `Boxing Timer Live Activity` extension + `LiveActivityManager` + `WorkoutTimerAttributes` | Removed at user request |
+| **Catalyst UI kit** | `web/catalyst-ui-kit` | Removed at user request — repo web scope is only the privacy policy site in `web/site` |
 
 ## Design Decisions
 
@@ -78,4 +79,3 @@ The 365-day activity graph was originally a `GeometryReader` wrapping nested `HS
 
 ### No #Preview Macros
 Use `PreviewProvider` structs if previews are needed, or skip previews entirely.
-
