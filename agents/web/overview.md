@@ -59,3 +59,4 @@ The page renders a `PrivacyPolicy` default export with a `Section` helper compon
 
 - Replace placeholder `privacy@boxingtimer.app` with a real address before publishing
 - Add `output: 'export'` to `next.config.ts` for static hosting (Vercel, GitHub Pages, etc.)
+- Hold the `eslint` v10 upgrade for now. A direct bump caused `npm run lint` to crash inside `eslint-plugin-react`; keep `eslint` on v9 until the lint toolchain is upgraded together.

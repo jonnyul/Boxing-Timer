@@ -33,7 +33,7 @@ For Fastlane details see [agents/ios/fastlane.md](./ios/fastlane.md).
 
 | Step | Runs on | What it does |
 |------|---------|--------------|
-| Checkout | both | Checks out the repo |
+| Checkout | both | Checks out the repo with `actions/checkout@v6` |
 | Select Xcode | both | Selects `/Applications/Xcode.app` on the `macos-26` runner |
 | Set up Ruby | both | Ruby 3.3 via pinned `ruby/setup-ruby` SHA |
 | Install Fastlane | both | `bundle install` in `ios/` |
@@ -91,6 +91,6 @@ Fastlane-specific behavior, match setup, screenshot capture details, and release
 ## Known Issues / Deadlines
 
 - **SDK Warning (deadline: 2026-04-28):** The workflow now targets `macos-26` so releases use Xcode 26 once GitHub schedules that runner. Re-upload after this change to clear ITMS-90725.
-- **Node.js 20 deprecation (deadline: 2026-06-02):** `actions/checkout@v4` uses Node.js 20. Non-blocking until June 2026.
+- **actions/checkout updated:** Workflows now use `actions/checkout@v6` instead of `v4`.
 - **CodeQL restored:** `codeql.yml` is back in the repo. Agents should not block on CodeQL completion unless the task is specifically about CodeQL findings.
 - **Submission confirmed:** version `1.0.1` / build `11` was uploaded successfully from GitHub Actions on March 21, 2026, and App Store Connect moved it to `Ready For Review`.
